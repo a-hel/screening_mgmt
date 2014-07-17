@@ -3,6 +3,6 @@ screening_mgmt
 
 Python module for management of screening data
 
-The module will soon be available here.
+Click the "Release" tab to download the module.
 
-Contact: andreas.helfenstein (at) helsinki.fi
+
