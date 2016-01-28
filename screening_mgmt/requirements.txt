@@ -1,0 +1,8 @@
+xlrd
+pandas
+ttk
+tkMessageBox
+tkSimpleDialog
+sqlalchemy
+tkFileDialog
+ScrolledText
