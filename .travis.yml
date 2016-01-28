@@ -5,4 +5,4 @@ python:
 # command to install dependencies
 install: "pip install pytest"
 # command to run tests
-script: py.test
+script: py.test ./screening_mgmt/test_module.py
