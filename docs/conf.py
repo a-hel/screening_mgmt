@@ -48,6 +48,9 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
+# Add path
+os.path.abspath('../')
+
 # General information about the project.
 project = u'Screening_mgmt'
 copyright = u'2016, Andreas Helfenstein'
