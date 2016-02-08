@@ -18,13 +18,3 @@ Contents:
    reference
 
 
-
-Indices and tables
-==================
-
-* :ref:`introduction`
-* :ref:`download`
-* :ref:`tutorial`
-* :ref:`reference`
-* :ref:`search`
-
