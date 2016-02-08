@@ -35,6 +35,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="reference.html" title="Reference"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -51,19 +54,56 @@
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="using-the-module">
+<h2>Using the module<a class="headerlink" href="#using-the-module" title="Permalink to this headline">¶</a></h2>
+<p>First, you need to initialize a :py:class DbConnection object, specifying the necessary parameters to connect to your database:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">screening_mgmt</span> <span class="kn">as</span> <span class="nn">sm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">DbConnection</span><span class="p">(</span><span class="n">dialect</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key_val</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The module uses SQLAlchemy to communicate with the database. At the moment, it supports the following dialects:</p>
+<p>&#8220;Drizzle&#8221;: &#8220;drizzle&#8221;,
+&#8220;Firebird&#8221;: &#8220;firebird&#8221;,
+&#8220;Microsoft SQL Server&#8221;: &#8220;mssql&#8221;,
+&#8220;MySQL&#8221;: &#8220;mysql&#8221;,
+&#8220;Oracle&#8221;: &#8220;oracle&#8221;,
+&#8220;PostgreSQL&#8221;: &#8220;postgresql&#8221;,
+&#8220;SQLite&#8221;: &#8220;sqlite&#8221;,
+&#8220;Sybase&#8221;: &#8220;sybase&#8221;</p>
+</div>
+<div class="section" id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="security">
+<h2>Security<a class="headerlink" href="#security" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="gui">
 <h2>GUI<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
 <p>Download the module from <em>GitHub</em>: <a class="reference external" href="https://github.com/a-hel/screening_mgmt/">github.com/a-hel/screening_mgmt</a>.</p>
 </div>
 <div class="section" id="command-line">
 <h2>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h2>
-<p>Just run <code class="docutils literal"><span class="pre">setup.py</span></code> from the terminal:</p>
-<p><code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">-install</span></code></p>
-<p>To verify that the installation worked, type</p>
+<p>The module provides a small command line-style interface. It is intended mainly for maintenance and debugging tasks.
+To start in command line mode, simply call</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">screening_mgmt</span> <span class="kn">as</span> <span class="nn">sm</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">__version__</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">console</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>The program will then prompt you to create a new connection by entering &#8216;n&#8217;.
+If you already have connected to a database before, it will list the previous connections.
+Follow the intructions on the screen in order to set up the connection.</p>
+<p>Once the connection is established, you get access to the following functions:</p>
+<p><strong>usr &lt;user_name&gt;</strong>: Add a new user to the database
+<strong>init</strong>: Initialize the database and build the underlying structure
+<strong>reset</strong>: Deletes (drops) all tables and re-initializes the database.
+Warning: This step is irreversible!
+<strong>exe &lt;command&gt;</strong>: Execute raw SQL command.
+<strong>summary [&lt;table&gt;]</strong>: Shows a list of all tables in the database. If a table name is given, also shows all the columns of that table.
+<strong>load</strong>:
+<strong>enter &lt;routine&gt;</strong>: Load data according to the specified routine.
+<strong>close</strong>: Close the connection.
+<strong>gui</strong>: Start the module in graphical mode
+<strong>exit</strong>: Quits the console</p>
 </div>
 </div>
 
@@ -76,6 +116,9 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Tutorial</a><ul>
+<li><a class="reference internal" href="#using-the-module">Using the module</a></li>
+<li><a class="reference internal" href="#structure">Structure</a></li>
+<li><a class="reference internal" href="#security">Security</a></li>
 <li><a class="reference internal" href="#gui">GUI</a></li>
 <li><a class="reference internal" href="#command-line">Command line</a></li>
 </ul>
@@ -118,6 +161,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="reference.html" title="Reference"
              >next</a> |</li>

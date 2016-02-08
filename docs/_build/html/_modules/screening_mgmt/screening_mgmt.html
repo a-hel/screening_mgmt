@@ -48,15 +48,18 @@
             
   <h1>Source code for screening_mgmt.screening_mgmt</h1><div class="highlight"><pre>
 <span class="c">#!/usr/bin/python</span>
-<span class="c">#</span>
-<span class="c"># SCREENING_MGMT: A module to automate data handling from screening experi-</span>
-<span class="c"># ments. It is a GUI-based interface between raw experimental data and a data</span>
-<span class="c"># base, where data is stored according to pre-defined routines. It also pro-</span>
-<span class="c"># vides access to that data and displays it as plot or table.</span>
-<span class="c">#</span>
-<span class="c"># Version: 0.1.1</span>
-<span class="c"># Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi</span>
-<span class="c"># Last revised: 19-09-2014</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: screening_mgmt</span>
+<span class="sd">    :platform: OSX, Windows</span>
+<span class="sd">    :synopsis: SCREENING_MGMT: A module to automate data handling from screening experi-</span>
+<span class="sd">ments. It is a GUI-based interface between raw experimental data and a data</span>
+<span class="sd">base, where data is stored according to pre-defined routines. It also pro-</span>
+<span class="sd">vides access to that data and displays it as plot or table.</span>
+
+<span class="sd">Version: 0.1.1</span>
+<span class="sd">Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi</span>
+<span class="sd">Last revised: 19-09-2014</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -72,6 +75,7 @@
 <span class="kn">import</span> <span class="nn">cmd</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
 
 <span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="kn">as</span> <span class="nn">sa</span>
 <span class="kn">import</span> <span class="nn">tkFileDialog</span> <span class="kn">as</span> <span class="nn">tkfd</span>
@@ -93,7 +97,8 @@
 <span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="DbError"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbError">[docs]</a><span class="k">class</span> <span class="nc">DbError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">DbError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An error with the database communication&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">val</span><span class="p">):</span>
@@ -102,7 +107,7 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_construct</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Set attributes from kwargs.</span>
 
@@ -114,44 +119,30 @@
 
 
 <div class="viewcode-block" id="DbConnection"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection">[docs]</a><span class="k">class</span> <span class="nc">DbConnection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Interface to the database connection.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interface to the database connection.</span>
 
 <span class="sd">    Set up connection to a supported SQL database via SQLAlchemy and</span>
 <span class="sd">    collect the pointers to the ORM.</span>
+<span class="sd">    Initialization of the DbConnection object does not automatically connect</span>
+<span class="sd">    to the database.</span>
 
-<span class="sd">    - **parameters**::</span>
+<span class="sd">    :param str dialect: The database protocol. At the moment, *SQLAlchemy*</span>
+<span class="sd">                supports the following protocols: *drizzle*, *firebird*, *mssql*,</span>
+<span class="sd">                *mysql*, *oracle*, *postgresql*, *sqlite*, and *sybase*.</span>
+<span class="sd">    :param str host: The host (e.g. *localhost* or `127.0.0.1`)</span>
+<span class="sd">    :param str user: Username</span>
+<span class="sd">    :param str pw: Password</span>
+<span class="sd">    :param str db: Database name</span>
+<span class="sd">    :param driver: Driver (default: &quot;&quot;)</span>
+<span class="sd">    :param key_val: Additional key values (default: &quot;&quot;)</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    :rtype: None</span>
 
-<span class="sd">        :param dialect: The database protocol. At the moment, *SQLAlchemy*</span>
-<span class="sd">            supports the following protocols: *drizzle*, *firebird*, *mssql*,</span>
-<span class="sd">            *mysql*, *oracle*, *postgresql*, *sqlite*, and *sybase*.</span>
-<span class="sd">        :type dialect: String</span>
-<span class="sd">        :param host: The host (e.g. *localhost* or `127.0.0.1`)</span>
-<span class="sd">        :type host: String</span>
-<span class="sd">        :param user: Username</span>
-<span class="sd">        :type user: String</span>
-<span class="sd">        :param pw: Password</span>
-<span class="sd">        :type pw: String</span>
-<span class="sd">        :param db: Database name</span>
-<span class="sd">        :type db: String</span>
-<span class="sd">        :param driver: Driver (default: &quot;&quot;)</span>
-<span class="sd">        :param key_val: Additional key values (default: &quot;&quot;)</span>
-<span class="sd">        :return: None</span>
-<span class="sd">        :rtype: None</span>
-
-<span class="sd">    - **Example**::</span>
-
-<span class="sd">        :Example: balah</span>
-
-<span class="sd">    - **See also::</span>
-
-<span class="sd">        .. seealso:: blah</span>
-
-
-
+<span class="sd">    :Example: db = DbConnection(&#39;mysql&#39;, &#39;localhost&#39;, &#39;user&#39;, &#39;password&#39;, &#39;main&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dialect</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key_val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-
 
         <span class="n">supported_db</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s">&quot;Drizzle&quot;</span><span class="p">:</span> <span class="s">&quot;drizzle&quot;</span><span class="p">,</span>
@@ -166,9 +157,9 @@
         <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">supported_db</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">dialect</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DbError</span><span class="p">(</span>
-                <span class="s">&quot;Dialect &#39;{0}&#39; is not supported, try &#39;{1}&#39;.&quot;</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Dialect &#39;{0}&#39; is not supported, try &#39;{1}&#39;.&quot;</span>
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dialect</span><span class="p">,</span> <span class="s">&quot;&#39;, &#39;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">supported_db</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+            <span class="k">raise</span> <span class="n">DbError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
@@ -182,7 +173,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="bp">False</span>
 
     <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create the standard tables Usr, Cpd, Rtn, Res.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connect to the database and create the standard tables Usr, Cpd, Rtn,</span>
+<span class="sd">        Res.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -198,16 +192,19 @@
             <span class="k">raise</span> <span class="n">DbError</span><span class="p">(</span><span class="s">&quot;Could not establish connection to the database.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_close_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Close the connection.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the connection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="bp">False</span>
 
 <div class="viewcode-block" id="DbConnection.connect"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Connect to database, create engine and metadata.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connect to database, create engine and metadata.</span>
 
-<span class="sd">        Returns two values: A boolean for successful/unsuccessful connection,</span>
-<span class="sd">        and a string with a confirmation or error message.</span>
+<span class="sd">        :return: True if connection is successful</span>
+<span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">url_params</span> <span class="o">=</span> <span class="p">[</span>
@@ -218,7 +215,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">key_val</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">]</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="s">&quot;{0}{1}://{2}:{3}@{4}/{5}{6}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">url_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">==</span> <span class="s">&quot;mssql&quot;</span><span class="p">:</span>
+            <span class="c"># Quick fix due to changes in SQLAlchemy API</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote_plus</span><span class="p">(</span><span class="s">&quot;DRIVER={SQL Server};SERVER={4};DATABASE={6};UID={2};PWD={3}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">url_params</span><span class="p">))</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="s">&quot;mssql+pyodbc:///?odbc_connect=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">params</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">==</span> <span class="s">&quot;sqlite&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="s">&quot;:memory:&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="s">r&quot;sqlite:///</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="s">&quot;{0}{1}://{2}:{3}@{4}/{5}{6}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">url_params</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c"># Set echo to True to see SQL</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -236,15 +242,20 @@
         <span class="n">Session</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">orm</span><span class="o">.</span><span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&quot;Connection successfully established&quot;</span>
+        <span class="k">return</span> <span class="bp">True</span>
 </div>
 <div class="viewcode-block" id="DbConnection.new_entry"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection.new_entry">[docs]</a>    <span class="k">def</span> <span class="nf">new_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Insert a new entry into the target table.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert a new entry into the target table.</span>
 
-<span class="sd">        Arguments:</span>
-<span class="sd">        target -- The name of the target database</span>
-<span class="sd">        data -- A dict where the keys must correspond to the columns of the</span>
-<span class="sd">                target table.</span>
+<span class="sd">        :param str target: Name of target database where the record is to be</span>
+<span class="sd">            stored.</span>
+<span class="sd">        :param dict data: column - value pair. Column names must correspond to</span>
+<span class="sd">            columns in the target database, and the data types must be</span>
+<span class="sd">            consistent.</span>
+
+<span class="sd">        :Example: DbConnection.new_entry({&#39;compound_id&#39;: 123,</span>
+<span class="sd">            &#39;compound_name&#39;: &#39;cpd123&#39;, &#39;MW&#39;: 154.2})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
@@ -253,13 +264,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>  <span class="c"># To do: Catch exceptions</span>
 </div>
 <div class="viewcode-block" id="DbConnection.batch_load"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection.batch_load">[docs]</a>    <span class="k">def</span> <span class="nf">batch_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">delim</span><span class="o">=</span><span class="s">&quot;,&quot;</span><span class="p">,</span> <span class="n">raw_file</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load compound and user information from file.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load compound and user information from csv file.</span>
 
-<span class="sd">        target -- The target database (e.g. Cpd, Rtn, Usr)</span>
-<span class="sd">        delim -- Delimiter used in txt and csv files, default is comma (&quot;,&quot;).</span>
-<span class="sd">                 This value is ignored when treating Excel files.</span>
-<span class="sd">        source_file -- The file to be loaded. If omitted, it can be chosen</span>
-<span class="sd">                       via a dialog.</span>
+<span class="sd">        :param str target: The target data table (e.g. Cpd, Rtn, Usr)</span>
+<span class="sd">        :param str delim: Delimiter used in txt and csv files, default is comma (&quot;,&quot;).</span>
+<span class="sd">                This value is ignored when reading Excel files.</span>
+<span class="sd">        :param str raw_file: Path to the source file. If omitted, it can be chosen</span>
+<span class="sd">                via a dialog.</span>
+<span class="sd">        :param bool update: If True, existing records will be updated to fit</span>
+<span class="sd">                the new data; if False the new records are ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
@@ -343,14 +357,24 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="DbConnection.write_results"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection.write_results">[docs]</a>    <span class="k">def</span> <span class="nf">write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine</span><span class="p">,</span> <span class="n">user_dir</span><span class="p">,</span> <span class="n">preview</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Write a new dataset to the main table.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run routine and write the results into the main table.</span>
 
 <span class="sd">        The function loads the user scripts from the user&#39;s working directory.</span>
 
-<span class="sd">        Arguments:</span>
+<span class="sd">        :param str routine: Python script for data import (without file</span>
+<span class="sd">                extension). The file must be saved in the user directory.</span>
+<span class="sd">        :param str user_dir: Directory of the routine script</span>
+<span class="sd">        :param bool preview: Whether or not to show a preview of the data</span>
+<span class="sd">                before writing them to the database</span>
+<span class="sd">        :param args, kwargs: Optional arguments for the routine script</span>
+<span class="sd">        :return: True in case of success, otherwise false.</span>
+<span class="sd">        :rtype: bool</span>
 
-<span class="sd">        routine -- The name of the routine</span>
-<span class="sd">        args, kwargs -- Will be passed to the user script</span>
+<span class="sd">        :Example: DbConnection.write_results(&#39;load_data&#39;, &#39;users/&#39;)</span>
+
+<span class="sd">        :seealso: On how to write a routine script, refer to the tutorial.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">declined_rtn</span> <span class="o">=</span> <span class="p">[]</span>
@@ -486,17 +510,21 @@
 </div>
 <div class="viewcode-block" id="DbConnection.load_results"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection.load_results">[docs]</a>    <span class="k">def</span> <span class="nf">load_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_str</span><span class="p">,</span>
             <span class="n">sl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sp</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dp</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Retrieve data from the database.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve data from the database.</span>
 
 <span class="sd">        Return the filtered data as a pandas data frame. Has to be called for</span>
 <span class="sd">        every routine, since data sets from different routines might be in-</span>
 <span class="sd">        compatible.</span>
-<span class="sd">        Arguments:</span>
-<span class="sd">        filter_str -- The filter string (SQLAlchemy syntax)</span>
-<span class="sd">        sl -- Boolean whether to save the result as a list</span>
-<span class="sd">        sp -- Boolean whether to save the result as a plot</span>
-<span class="sd">        dl -- Boolean whether to display the result as a list</span>
-<span class="sd">        dp -- Boolean whether to display the result as a plot</span>
+<span class="sd">        :param str filter_str: The filter string (SQLAlchemy syntax)</span>
+<span class="sd">        :param bool sl: Save the result as a list</span>
+<span class="sd">        :param bool sp: Save the result as a plot</span>
+<span class="sd">        :param bool dl: Display the result as a list</span>
+<span class="sd">        :param bool dp: Display the result as a plot</span>
+<span class="sd">        :return: Tuple of Dataframe with the retrieved results, dict</span>
+<span class="sd">        :rtype: Tuple</span>
+
+<span class="sd">        :seealso: To learn about SQLAlchemy syntax, refer to their documentation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data_pool</span> <span class="o">=</span> <span class="p">{}</span>
@@ -514,8 +542,6 @@
             <span class="k">raise</span> <span class="n">DbError</span><span class="p">(</span><span class="s">&quot;Could not create filter</span><span class="se">\n</span><span class="s">{0}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filter_str</span><span class="p">)</span> <span class="o">+</span>
                 <span class="s">&quot;Please try again.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
-        <span class="c">#except sa.exc.ArgumentError:</span>
-        <span class="c">#    return</span>
         <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
                 <span class="n">routine</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -539,15 +565,23 @@
 </div>
 <div class="viewcode-block" id="DbConnection.get_summary"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection.get_summary">[docs]</a>    <span class="k">def</span> <span class="nf">get_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine</span><span class="p">,</span> <span class="n">user_dir</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">list_</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a list for on-screen display or writing to file or</span>
-<span class="sd">        a plot for on-screen display or writing to file.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare a summary for .</span>
 
-<span class="sd">        Calls the user-defined script associated with the routine.</span>
-<span class="sd">        Arguments:</span>
-<span class="sd">        routine -- The routine to be used</span>
-<span class="sd">        df -- The database, preferably retrieved via load_results().</span>
-<span class="sd">        plot -- boolean, whether plot is to be returned</span>
-<span class="sd">        list_ -- boolean, whether list is to be returned</span>
+<span class="sd">        :param str routine: Python script for data import (without file</span>
+<span class="sd">                extension). The file must be saved in the user directory.</span>
+<span class="sd">        :param str user_dir: Directory of the routine script</span>
+<span class="sd">        :param pandas.DataFrame df: The data frame to present, preferably</span>
+<span class="sd">                retrieved via load_results().</span>
+<span class="sd">        :param bool plot: Return plot</span>
+<span class="sd">        :param bool list_: Return list</span>
+<span class="sd">        :return: {&#39;list&#39;: &lt;summary as string&gt;, &#39;plot&#39;: &lt;matplotlib object&gt;}</span>
+<span class="sd">        :rtype: dict</span>
+
+<span class="sd">        :Example: results, dirs = DbConnection.load_results(&lt;filter&gt;, sl=True)</span>
+<span class="sd">        text, img = DbConnection.get_summary(&#39;analysis_script&#39;, &#39;user/&#39;, results)</span>
+<span class="sd">        print text</span>
+<span class="sd">        img.show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_dir</span><span class="p">)</span>
@@ -565,11 +599,8 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="n">path</span><span class="p">,</span> <span class="n">file_</span> <span class="o">=</span> <span class="n">loc</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-                <span class="c">#try:</span>
                 <span class="k">exec</span><span class="p">(</span><span class="s">&quot;import {0} as rtn&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">,</span>
                         <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span>
-                <span class="c">#except:</span>
-                <span class="c">#    raise DbError(&quot;Impossible to open script&quot;)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span>
         <span class="k">except</span> <span class="ne">SyntaxError</span><span class="p">:</span>
@@ -603,13 +634,16 @@
         <span class="k">return</span> <span class="n">summary</span>
 </div>
 <div class="viewcode-block" id="DbConnection.update"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbConnection.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">id_field</span><span class="p">,</span> <span class="n">id_value</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Update a field in the database.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update a field in the database.</span>
 
-<span class="sd">        Arguments:</span>
-<span class="sd">        table -- The table that should be updated</span>
-<span class="sd">        id_code -- The primary key for the row to be updated</span>
-<span class="sd">        kwargs -- The keys must match the column names, the values are the</span>
-<span class="sd">                  updated values.</span>
+<span class="sd">        :param str table: Table where the value needs to be updated</span>
+<span class="sd">        :param str id_field: Column containing the primary key</span>
+<span class="sd">        :param str id_value: Primary key of updated record</span>
+<span class="sd">        :param dict val: name-value pairs of column to be updated and new values.</span>
+
+<span class="sd">        :Example: To update the molecular weight of compound 15 in the compound</span>
+<span class="sd">            table: DbConnection.update(&#39;compound&#39;, &#39;cpd_id&#39;, &#39;15&#39;, {&#39;mw&#39;: 132.5}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">stmt</span> <span class="o">=</span> <span class="p">(</span>
@@ -619,7 +653,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
 
 </div></div>
-<div class="viewcode-block" id="Cpd"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.Cpd">[docs]</a><span class="k">class</span> <span class="nc">Cpd</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Cpd</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for the compound table&quot;&quot;&quot;</span>
 
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&quot;compounds&quot;</span>
@@ -637,8 +671,8 @@
 
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-</div>
-<div class="viewcode-block" id="Usr"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.Usr">[docs]</a><span class="k">class</span> <span class="nc">Usr</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">Usr</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for the user table.&quot;&quot;&quot;</span>
 
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&quot;users&quot;</span>
@@ -654,7 +688,8 @@
     <span class="n">working_directory</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Construct user table and user directory.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct user table and user directory.</span>
 
 <span class="sd">        If no user directory is defined in kwargs, a folder in the home</span>
 <span class="sd">        directory is created.</span>
@@ -671,8 +706,8 @@
                 <span class="k">print</span> <span class="s">&quot;Could not create user directory: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span> <span class="o">=</span> <span class="n">usr_path</span>
 
-</div>
-<div class="viewcode-block" id="Rtn"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.Rtn">[docs]</a><span class="k">class</span> <span class="nc">Rtn</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">Rtn</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for the routine table&quot;&quot;&quot;</span>
 
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&quot;routines&quot;</span>
@@ -733,8 +768,8 @@
 
 
 
-</div>
-<div class="viewcode-block" id="Res"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.Res">[docs]</a><span class="k">class</span> <span class="nc">Res</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">Res</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for the result metadata table.&quot;&quot;&quot;</span>
 
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&quot;results&quot;</span>
@@ -787,8 +822,8 @@
                 <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Rtn</span><span class="o">.</span><span class="n">alias</span><span class="o">==</span><span class="n">meta_data</span><span class="p">[</span><span class="s">&#39;routine&#39;</span><span class="p">])</span>
                 <span class="o">.</span><span class="n">scalar</span><span class="p">())</span>
 
-</div>
-<div class="viewcode-block" id="CmdLine"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine">[docs]</a><span class="k">class</span> <span class="nc">CmdLine</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">Cmd</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">CmdLine</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">Cmd</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Start simple command processor for debugging/low level functions.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -809,8 +844,8 @@
                 <span class="s">&quot;User: &quot;</span><span class="p">,</span>
                 <span class="s">&quot;Password: &quot;</span><span class="p">,</span>
                 <span class="s">&quot;Database: &quot;</span><span class="p">,</span>
-                <span class="s">&quot;Driver: &quot;</span><span class="p">,</span>
-                <span class="s">&quot;Key values: &quot;</span><span class="p">]:</span>
+                <span class="s">&quot;Driver (optional): &quot;</span><span class="p">,</span>
+                <span class="s">&quot;Key values (optional): &quot;</span><span class="p">]:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">raw_input</span><span class="p">(</span><span class="n">elem</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
@@ -824,7 +859,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="s">&#39;&gt;&gt;&gt; &#39;</span>
 
 
-<div class="viewcode-block" id="CmdLine.do_usr"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_usr">[docs]</a>    <span class="k">def</span> <span class="nf">do_usr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">do_usr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add the user [line].&quot;&quot;&quot;</span>
 
         <span class="n">user</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;usr_name&quot;</span><span class="p">:</span> <span class="n">line</span><span class="p">,}</span>
@@ -835,8 +870,8 @@
             <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Could not add the user: </span><span class="se">\n\n</span><span class="s">{0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">sa</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&quot;A user with the name &#39;{0}&#39; already exists.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_init"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_init">[docs]</a>    <span class="k">def</span> <span class="nf">do_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build the database tables.&quot;&quot;&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -845,8 +880,8 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="n">e</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Could not initialize the Database: </span><span class="se">\n\n</span><span class="s">{0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_reset"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_reset">[docs]</a>    <span class="k">def</span> <span class="nf">do_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Drop all tables irreversibly and rebuild the basic</span>
 <span class="sd">        tables of the database.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -863,8 +898,8 @@
                     <span class="k">print</span> <span class="s">&quot;Could not reset database. Try again&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Database reset.&quot;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_exe"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_exe">[docs]</a>    <span class="k">def</span> <span class="nf">do_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute line as SQL statement.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -875,8 +910,8 @@
             <span class="n">result</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">print</span> <span class="s">&quot;OUT: &gt;&gt; {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_summary"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_summary">[docs]</a>    <span class="k">def</span> <span class="nf">do_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Show a list of the existing tables and the columns</span>
 <span class="sd">        of the table specified in line.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -890,16 +925,16 @@
                 <span class="k">print</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="n">line</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;Table &#39;{0}&#39; not found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_load"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_load">[docs]</a>    <span class="k">def</span> <span class="nf">do_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load the first ten sets of the routine specified in line&quot;&quot;&quot;</span>
 
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;/routines&quot;</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;import routines.{0} as rtn&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">exec</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="n">rtn</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_db"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_db">[docs]</a>    <span class="k">def</span> <span class="nf">do_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Applies the command to the connection, stub&quot;&quot;&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -907,8 +942,8 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="n">e</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Invalid command: </span><span class="se">\n\n</span><span class="s">{0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_enter"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_enter">[docs]</a>    <span class="k">def</span> <span class="nf">do_enter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_enter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Enters new data sets&quot;&quot;&quot;</span>
 
         <span class="n">args</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">)</span>
@@ -920,27 +955,27 @@
             <span class="n">e</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Error: </span><span class="se">\n\n</span><span class="s">{0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_sql"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_sql">[docs]</a>    <span class="k">def</span> <span class="nf">do_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Executes SQL statement&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">sa</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">ProgrammingError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&quot;Synatx error. </span><span class="se">\n</span><span class="s"> {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_ud"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_ud">[docs]</a>    <span class="k">def</span> <span class="nf">do_ud</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_ud</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;reloads modules&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="p">[</span><span class="n">sm</span><span class="p">,]:</span>
             <span class="nb">reload</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_close"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_close">[docs]</a>    <span class="k">def</span> <span class="nf">do_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Closes the connection&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&quot;No active connection&quot;</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_gui"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_gui">[docs]</a>    <span class="k">def</span> <span class="nf">do_gui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_gui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start the GUI.&quot;&quot;&quot;</span>
 
 
@@ -949,19 +984,19 @@
         <span class="n">connection_dlg</span> <span class="o">=</span> <span class="n">MainMenu</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">)</span>
         <span class="n">root</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span><span class="n">connection_dlg</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
 
-</div>
-<div class="viewcode-block" id="CmdLine.do_EOF"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_EOF">[docs]</a>    <span class="k">def</span> <span class="nf">do_EOF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_EOF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Quits the console.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">True</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_exit"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_exit">[docs]</a>    <span class="k">def</span> <span class="nf">do_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Quits the console.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">True</span>
-</div>
-<div class="viewcode-block" id="CmdLine.do_quit"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.CmdLine.do_quit">[docs]</a>    <span class="k">def</span> <span class="nf">do_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">do_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Quits the console.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">True</span>
-</div></div>
+
 <span class="k">class</span> <span class="nc">DB_connection</span><span class="p">():</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
@@ -1096,7 +1131,7 @@
     <span class="k">def</span> <span class="nf">_get_about</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Show info&quot;&quot;&quot;</span>
 
-        <span class="n">tkMessageBox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="s">&quot;About&quot;</span><span class="p">,</span> <span class="s">&quot;Screening Managemant Software</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
+        <span class="n">tkMessageBox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="s">&quot;About&quot;</span><span class="p">,</span> <span class="s">&quot;Screening Management Software</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="s">&quot;Andreas Helfenstein</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="s">&quot;University of Helsinki</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="s">&quot;andreas.helfenstein@helsinki.fi&quot;</span><span class="p">)</span>
@@ -2010,12 +2045,10 @@
 
         <span class="k">global</span> <span class="n">line_no</span>
         <span class="n">line_no</span> <span class="o">=</span> <span class="mi">1</span>
-
         <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s">&quot;New compound&quot;</span><span class="p">,</span>
                 <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>
                 <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                 <span class="n">justify</span> <span class="o">=</span> <span class="s">&quot;left&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">keys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">:</span>
             <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="n">keys</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">line_no</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="n">sticky</span><span class="o">=</span><span class="s">&quot;nw&quot;</span><span class="p">)</span>
@@ -2023,8 +2056,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="n">keys</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">line_no</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="o">+</span><span class="n">i</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s">&quot;we&quot;</span><span class="p">)</span>
             <span class="n">line_no</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elem_collection</span> <span class="o">=</span> <span class="p">{}</span>
-
-
 
         <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s">&quot;Load&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_fields</span><span class="p">(),</span>
             <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s">&quot;we&quot;</span><span class="p">)</span>
@@ -2047,13 +2078,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
         <span class="n">col_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">eval</span><span class="p">(</span><span class="s">&quot;Cpd.{0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span> <span class="k">for</span> <span class="n">keys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">]</span>
-
         <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="o">*</span><span class="n">col_names</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Cpd</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-        <span class="c">#col = self.conn.metadata.tables[&#39;users&#39;].columns</span>
         <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-
         <span class="n">dic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
-        <span class="c">#print dic</span>
         <span class="k">for</span> <span class="n">keys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="n">keys</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tk</span><span class="o">.</span><span class="n">END</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">dic</span><span class="p">[</span><span class="n">keys</span><span class="p">]:</span>
@@ -2128,7 +2155,6 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
 
         <span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
-
         <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s">&quot;This is how your data will be sent to the &quot;</span> <span class="o">+</span>
             <span class="s">&quot;database.</span><span class="se">\n</span><span class="s">Click &#39;Accept&#39; to proceed or &#39;Discard&#39; to &quot;</span> <span class="o">+</span>
             <span class="s">&quot;cancel&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -2136,9 +2162,6 @@
         <span class="n">text_area</span> <span class="o">=</span> <span class="n">ScrolledText</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="n">tk</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
         <span class="n">text_area</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">tk</span><span class="o">.</span><span class="n">INSERT</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
         <span class="n">text_area</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-
-
-
         <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s">&quot;Accept&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ok</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="s">&quot;we&quot;</span><span class="p">)</span>
         <span class="n">tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s">&quot;Discard&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quit</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
@@ -2311,26 +2334,31 @@
     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;$&quot;</span><span class="p">,</span> <span class="s">&quot;    &quot;</span><span class="p">))</span>
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<div class="viewcode-block" id="auto"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.auto">[docs]</a><span class="k">def</span> <span class="nf">auto</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">auto</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="k">pass</span>
-</div>
-<div class="viewcode-block" id="console"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.console">[docs]</a><span class="k">def</span> <span class="nf">console</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">console</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Start rudimentary command line style user interface.&quot;&quot;&quot;</span>
 
     <span class="c"># To do: input mask for new connection</span>
 
     <span class="n">CmdLine</span><span class="p">()</span><span class="o">.</span><span class="n">cmdloop</span><span class="p">(</span><span class="n">intro</span><span class="o">=</span><span class="s">&quot;Command line input. Press &#39;?&#39; for help, &#39;exit&#39; to quit&quot;</span><span class="p">)</span>
 
-</div>
-<div class="viewcode-block" id="gui"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.gui">[docs]</a><span class="k">def</span> <span class="nf">gui</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Start the GUI&quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">gui</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Start the graphical user interface, which gives access to the</span>
+<span class="sd">    main functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
     <span class="n">root</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Database connection&#39;</span><span class="p">)</span>
     <span class="n">connection_dlg</span> <span class="o">=</span> <span class="n">DB_connection</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
     <span class="n">root</span><span class="o">.</span><span class="n">wait_window</span><span class="p">(</span><span class="n">connection_dlg</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-    <span class="k">return</span> <span class="bp">True</span></div>
+    <span class="k">return</span> <span class="bp">True</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">gui</span><span class="p">()</span>
 </pre></div>
 
           </div>

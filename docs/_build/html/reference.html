@@ -50,183 +50,126 @@
             
   <div class="section" id="reference">
 <h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Just a silly note.</p>
+</div>
 <div class="section" id="module-screening_mgmt.screening_mgmt">
 <span id="functions"></span><h2>Functions<a class="headerlink" href="#module-screening_mgmt.screening_mgmt" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="screening_mgmt.screening_mgmt.CmdLine">
-<em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">CmdLine</code><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start simple command processor for debugging/low level functions.</p>
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_EOF">
-<code class="descname">do_EOF</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_EOF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_EOF" title="Permalink to this definition">¶</a></dt>
-<dd><p>Quits the console.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_close">
-<code class="descname">do_close</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_close" title="Permalink to this definition">¶</a></dt>
-<dd><p>Closes the connection</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_db">
-<code class="descname">do_db</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the command to the connection, stub</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_enter">
-<code class="descname">do_enter</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_enter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_enter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enters new data sets</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_exe">
-<code class="descname">do_exe</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_exe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_exe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute line as SQL statement.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_exit">
-<code class="descname">do_exit</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_exit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Quits the console.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_gui">
-<code class="descname">do_gui</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_gui" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start the GUI.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_init">
-<code class="descname">do_init</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_init" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the database tables.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_load">
-<code class="descname">do_load</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load the first ten sets of the routine specified in line</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_quit">
-<code class="descname">do_quit</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_quit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Quits the console.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_reset">
-<code class="descname">do_reset</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_reset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Drop all tables irreversibly and rebuild the basic
-tables of the database.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_sql">
-<code class="descname">do_sql</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_sql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_sql" title="Permalink to this definition">¶</a></dt>
-<dd><p>Executes SQL statement</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_summary">
-<code class="descname">do_summary</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_summary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Show a list of the existing tables and the columns
-of the table specified in line.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_ud">
-<code class="descname">do_ud</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_ud"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_ud" title="Permalink to this definition">¶</a></dt>
-<dd><p>reloads modules</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="screening_mgmt.screening_mgmt.CmdLine.do_usr">
-<code class="descname">do_usr</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#CmdLine.do_usr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.CmdLine.do_usr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the user [line].</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="screening_mgmt.screening_mgmt.Cpd">
-<em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">Cpd</code><span class="sig-paren">(</span><em>conn</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#Cpd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.Cpd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class for the compound table</p>
-</dd></dl>
-
+<span class="target" id="module-screening_mgmt"></span><p>ments. It is a GUI-based interface between raw experimental data and a data
+base, where data is stored according to pre-defined routines. It also pro-
+vides access to that data and displays it as plot or table.</p>
+<p>Version: 0.1.1
+Author: Andreas Helfenstein, <a class="reference external" href="mailto:andreas&#46;helfenstein&#37;&#52;&#48;helsinki&#46;fi">andreas<span>&#46;</span>helfenstein<span>&#64;</span>helsinki<span>&#46;</span>fi</a>
+Last revised: 19-09-2014</p>
 <dl class="class">
 <dt id="screening_mgmt.screening_mgmt.DbConnection">
 <em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">DbConnection</code><span class="sig-paren">(</span><em>dialect</em>, <em>host</em>, <em>user</em>, <em>pw</em>, <em>db</em>, <em>driver=None</em>, <em>key_val=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interface to the database connection.</p>
 <p>Set up connection to a supported SQL database via SQLAlchemy and
-collect the pointers to the ORM.</p>
-<ul>
-<li><p class="first"><strong>parameters</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre>:param dialect: The database protocol. At the moment, *SQLAlchemy*
-    supports the following protocols: *drizzle*, *firebird*, *mssql*,
-    *mysql*, *oracle*, *postgresql*, *sqlite*, and *sybase*.
-:type dialect: String
-:param host: The host (e.g. *localhost* or `127.0.0.1`)
-:type host: String
-:param user: Username
-:type user: String
-:param pw: Password
-:type pw: String
-:param db: Database name
-:type db: String
-:param driver: Driver (default: &quot;&quot;)
-:param key_val: Additional key values (default: &quot;&quot;)
-:return: None
-:rtype: None
-</pre></div>
-</div>
-</li>
-<li><p class="first"><strong>Example</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre>:Example: balah
-</pre></div>
-</div>
-</li>
-<li><p class="first"><a href="#id1"><span class="problematic" id="id2">**</span></a>See also:</p>
-<div class="highlight-python"><div class="highlight"><pre>.. seealso:: blah
-</pre></div>
-</div>
-</li>
+collect the pointers to the ORM.
+Initialization of the DbConnection object does not automatically connect
+to the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dialect</strong> (<em>str</em>) &#8211; The database protocol. At the moment, <em>SQLAlchemy</em>
+supports the following protocols: <em>drizzle</em>, <em>firebird</em>, <em>mssql</em>,
+<em>mysql</em>, <em>oracle</em>, <em>postgresql</em>, <em>sqlite</em>, and <em>sybase</em>.</li>
+<li><strong>host</strong> (<em>str</em>) &#8211; The host (e.g. <em>localhost</em> or <cite>127.0.0.1</cite>)</li>
+<li><strong>user</strong> (<em>str</em>) &#8211; Username</li>
+<li><strong>pw</strong> (<em>str</em>) &#8211; Password</li>
+<li><strong>db</strong> (<em>str</em>) &#8211; Database name</li>
+<li><strong>driver</strong> &#8211; Driver (default: &#8220;&#8221;)</li>
+<li><strong>key_val</strong> &#8211; Additional key values (default: &#8220;&#8221;)</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">db = DbConnection(&#8216;mysql&#8217;, &#8216;localhost&#8217;, &#8216;user&#8217;, &#8216;password&#8217;, &#8216;main&#8217;)</p>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="screening_mgmt.screening_mgmt.DbConnection.batch_load">
 <code class="descname">batch_load</code><span class="sig-paren">(</span><em>target</em>, <em>delim='</em>, <em>'</em>, <em>raw_file=None</em>, <em>update=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection.batch_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection.batch_load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load compound and user information from file.</p>
-<p>target &#8211; The target database (e.g. Cpd, Rtn, Usr)
-delim &#8211; Delimiter used in txt and csv files, default is comma (&#8221;,&#8221;).</p>
-<blockquote>
-<div>This value is ignored when treating Excel files.</div></blockquote>
-<dl class="docutils">
-<dt>source_file &#8211; The file to be loaded. If omitted, it can be chosen</dt>
-<dd>via a dialog.</dd>
-</dl>
+<dd><p>Load compound and user information from csv file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>target</strong> (<em>str</em>) &#8211; The target data table (e.g. Cpd, Rtn, Usr)</li>
+<li><strong>delim</strong> (<em>str</em>) &#8211; Delimiter used in txt and csv files, default is comma (&#8221;,&#8221;).
+This value is ignored when reading Excel files.</li>
+<li><strong>raw_file</strong> (<em>str</em>) &#8211; Path to the source file. If omitted, it can be chosen
+via a dialog.</li>
+<li><strong>update</strong> (<em>bool</em>) &#8211; If True, existing records will be updated to fit
+the new data; if False the new records are ignored.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="screening_mgmt.screening_mgmt.DbConnection.connect">
 <code class="descname">connect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection.connect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connect to database, create engine and metadata.</p>
-<p>Returns two values: A boolean for successful/unsuccessful connection,
-and a string with a confirmation or error message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if connection is successful</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="screening_mgmt.screening_mgmt.DbConnection.get_summary">
 <code class="descname">get_summary</code><span class="sig-paren">(</span><em>routine</em>, <em>user_dir</em>, <em>df</em>, <em>plot=0</em>, <em>list_=1</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection.get_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection.get_summary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a list for on-screen display or writing to file or
-a plot for on-screen display or writing to file.</p>
-<p>Calls the user-defined script associated with the routine.
-Arguments:
-routine &#8211; The routine to be used
-df &#8211; The database, preferably retrieved via load_results().
-plot &#8211; boolean, whether plot is to be returned
-<a href="#id5"><span class="problematic" id="id6">list_</span></a> &#8211; boolean, whether list is to be returned</p>
+<dd><p>Prepare a summary for .</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>routine</strong> (<em>str</em>) &#8211; Python script for data import (without file
+extension). The file must be saved in the user directory.</li>
+<li><strong>user_dir</strong> (<em>str</em>) &#8211; Directory of the routine script</li>
+<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; The data frame to present, preferably
+retrieved via load_results().</li>
+<li><strong>plot</strong> (<em>bool</em>) &#8211; Return plot</li>
+<li><strong>list</strong> (<em>bool</em>) &#8211; Return list</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">{&#8216;list&#8217;: &lt;summary as string&gt;, &#8216;plot&#8217;: &lt;matplotlib object&gt;}</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">dict</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">results, dirs = DbConnection.load_results(&lt;filter&gt;, sl=True)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>text, img = DbConnection.get_summary(&#8216;analysis_script&#8217;, &#8216;user/&#8217;, results)
+print text
+img.show()</p>
 </dd></dl>
 
 <dl class="method">
@@ -236,190 +179,153 @@ plot &#8211; boolean, whether plot is to be returned
 <p>Return the filtered data as a pandas data frame. Has to be called for
 every routine, since data sets from different routines might be in-
 compatible.
-Arguments:
-filter_str &#8211; The filter string (SQLAlchemy syntax)
-sl &#8211; Boolean whether to save the result as a list
-sp &#8211; Boolean whether to save the result as a plot
-dl &#8211; Boolean whether to display the result as a list
-dp &#8211; Boolean whether to display the result as a plot</p>
+:param str filter_str: The filter string (SQLAlchemy syntax)
+:param bool sl: Save the result as a list
+:param bool sp: Save the result as a plot
+:param bool dl: Display the result as a list
+:param bool dp: Display the result as a plot
+:return: Tuple of Dataframe with the retrieved results, dict
+:rtype: Tuple</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Seealso:</th><td class="field-body">To learn about SQLAlchemy syntax, refer to their documentation.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="screening_mgmt.screening_mgmt.DbConnection.new_entry">
 <code class="descname">new_entry</code><span class="sig-paren">(</span><em>target</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection.new_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection.new_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert a new entry into the target table.</p>
-<p>Arguments:
-target &#8211; The name of the target database
-data &#8211; A dict where the keys must correspond to the columns of the</p>
-<blockquote>
-<div>target table.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target</strong> (<em>str</em>) &#8211; Name of target database where the record is to be
+stored.</li>
+<li><strong>data</strong> (<em>dict</em>) &#8211; column - value pair. Column names must correspond to
+columns in the target database, and the data types must be
+consistent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">DbConnection.new_entry({&#8216;compound_id&#8217;: 123,
+&#8216;compound_name&#8217;: &#8216;cpd123&#8217;, &#8216;MW&#8217;: 154.2})</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="screening_mgmt.screening_mgmt.DbConnection.update">
 <code class="descname">update</code><span class="sig-paren">(</span><em>table</em>, <em>id_field</em>, <em>id_value</em>, <em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update a field in the database.</p>
-<p>Arguments:
-table &#8211; The table that should be updated
-id_code &#8211; The primary key for the row to be updated
-kwargs &#8211; The keys must match the column names, the values are the</p>
-<blockquote>
-<div>updated values.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> (<em>str</em>) &#8211; Table where the value needs to be updated</li>
+<li><strong>id_field</strong> (<em>str</em>) &#8211; Column containing the primary key</li>
+<li><strong>id_value</strong> (<em>str</em>) &#8211; Primary key of updated record</li>
+<li><strong>val</strong> (<em>dict</em>) &#8211; name-value pairs of column to be updated and new values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">To update the molecular weight of compound 15 in the compound
+table: DbConnection.update(&#8216;compound&#8217;, &#8216;cpd_id&#8217;, &#8216;15&#8217;, {&#8216;mw&#8217;: 132.5}</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="screening_mgmt.screening_mgmt.DbConnection.write_results">
 <code class="descname">write_results</code><span class="sig-paren">(</span><em>routine</em>, <em>user_dir</em>, <em>preview=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection.write_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection.write_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a new dataset to the main table.</p>
+<dd><p>Run routine and write the results into the main table.</p>
 <p>The function loads the user scripts from the user&#8217;s working directory.</p>
-<p>Arguments:</p>
-<p>routine &#8211; The name of the routine
-args, kwargs &#8211; Will be passed to the user script</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="exception">
-<dt id="screening_mgmt.screening_mgmt.DbError">
-<em class="property">exception </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">DbError</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbError" title="Permalink to this definition">¶</a></dt>
-<dd><p>An error with the database communication</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="screening_mgmt.screening_mgmt.Res">
-<em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">Res</code><span class="sig-paren">(</span><em>conn</em>, <em>meta_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#Res"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.Res" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class for the result metadata table.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="screening_mgmt.screening_mgmt.Rtn">
-<em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">Rtn</code><span class="sig-paren">(</span><em>conn</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#Rtn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.Rtn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class for the routine table</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="screening_mgmt.screening_mgmt.Usr">
-<em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">Usr</code><span class="sig-paren">(</span><em>conn</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#Usr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.Usr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class for the user table.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="screening_mgmt.screening_mgmt.auto">
-<code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">auto</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.auto" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="screening_mgmt.screening_mgmt.console">
-<code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">console</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#console"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.console" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start rudimentary command line style user interface.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="screening_mgmt.screening_mgmt.gui">
-<code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">gui</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.gui" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start the GUI</p>
-</dd></dl>
-
-<p>xzy</p>
-</div>
-<div class="section" id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
-<p>xyz</p>
-<p>:py:class:: DbConnection()</p>
-<blockquote>
-<div><ul>
-<li><p class="first"><strong>Parameters</strong>:</p>
-<blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">param dialect:</th><td class="field-body">The database protocol. At the moment, <em>SQLAlchemy</em>
-supports the following protocols: <em>drizzle</em>, <em>firebird</em>, <em>mssql</em>,
-<em>mysql</em>, <em>oracle</em>, <em>postgresql</em>, <em>sqlite</em>, and <em>sybase</em>.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>routine</strong> (<em>str</em>) &#8211; Python script for data import (without file
+extension). The file must be saved in the user directory.</li>
+<li><strong>user_dir</strong> (<em>str</em>) &#8211; Directory of the routine script</li>
+<li><strong>preview</strong> (<em>bool</em>) &#8211; Whether or not to show a preview of the data
+before writing them to the database</li>
+<li><strong>kwargs</strong> (<em>args,</em>) &#8211; Optional arguments for the routine script</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">type dialect:</th><td class="field-body">String</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True in case of success, otherwise false.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">param host:</th><td class="field-body">The host (e.g. <em>localhost</em> or <cite>127.0.0.1</cite>)</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">type host:</th><td class="field-body">String</td>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first">DbConnection.write_results(&#8216;load_data&#8217;, &#8216;users/&#8217;)</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">param user:</th><td class="field-body">Username</td>
-</tr>
-<tr class="field-even field"><th class="field-name">type user:</th><td class="field-body">String</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">param pw:</th><td class="field-body">Password</td>
-</tr>
-<tr class="field-even field"><th class="field-name">type pw:</th><td class="field-body">String</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">param db:</th><td class="field-body">Database name</td>
-</tr>
-<tr class="field-even field"><th class="field-name">type db:</th><td class="field-body">String</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">param driver:</th><td class="field-body">Driver (default: &#8220;&#8221;)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">param key_val:</th><td class="field-body">Additional key values (default: &#8220;&#8221;)</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">return:</th><td class="field-body">None</td>
-</tr>
-<tr class="field-even field"><th class="field-name">rtype:</th><td class="field-body">None</td>
+<tr class="field-odd field"><th class="field-name">Seealso:</th><td class="field-body"><p class="first last">On how to write a routine script, refer to the tutorial.</p>
+</td>
 </tr>
 </tbody>
 </table>
-</div></blockquote>
-</li>
-<li><p class="first"><strong>Example</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre>:Example: balah
-</pre></div>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-</li>
-<li><p class="first"><strong>See also</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre>.. seealso:: blah
-</pre></div>
-</div>
-</li>
-</ul>
-</div></blockquote>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt>
 <em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">DbConnection</code><span class="sig-paren">(</span><em>dialect</em>, <em>host</em>, <em>user</em>, <em>pw</em>, <em>db</em>, <em>driver=None</em>, <em>key_val=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Interface to the database connection.</p>
 <p>Set up connection to a supported SQL database via SQLAlchemy and
-collect the pointers to the ORM.</p>
-<ul>
-<li><p class="first"><strong>parameters</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre>:param dialect: The database protocol. At the moment, *SQLAlchemy*
-    supports the following protocols: *drizzle*, *firebird*, *mssql*,
-    *mysql*, *oracle*, *postgresql*, *sqlite*, and *sybase*.
-:type dialect: String
-:param host: The host (e.g. *localhost* or `127.0.0.1`)
-:type host: String
-:param user: Username
-:type user: String
-:param pw: Password
-:type pw: String
-:param db: Database name
-:type db: String
-:param driver: Driver (default: &quot;&quot;)
-:param key_val: Additional key values (default: &quot;&quot;)
-:return: None
-:rtype: None
-</pre></div>
-</div>
-</li>
-<li><p class="first"><strong>Example</strong>:</p>
-<div class="highlight-python"><div class="highlight"><pre>:Example: balah
-</pre></div>
-</div>
-</li>
-<li><p class="first"><a href="#id3"><span class="problematic" id="id4">**</span></a>See also:</p>
-<div class="highlight-python"><div class="highlight"><pre>.. seealso:: blah
-</pre></div>
-</div>
-</li>
+collect the pointers to the ORM.
+Initialization of the DbConnection object does not automatically connect
+to the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dialect</strong> (<em>str</em>) &#8211; The database protocol. At the moment, <em>SQLAlchemy</em>
+supports the following protocols: <em>drizzle</em>, <em>firebird</em>, <em>mssql</em>,
+<em>mysql</em>, <em>oracle</em>, <em>postgresql</em>, <em>sqlite</em>, and <em>sybase</em>.</li>
+<li><strong>host</strong> (<em>str</em>) &#8211; The host (e.g. <em>localhost</em> or <cite>127.0.0.1</cite>)</li>
+<li><strong>user</strong> (<em>str</em>) &#8211; Username</li>
+<li><strong>pw</strong> (<em>str</em>) &#8211; Password</li>
+<li><strong>db</strong> (<em>str</em>) &#8211; Database name</li>
+<li><strong>driver</strong> &#8211; Driver (default: &#8220;&#8221;)</li>
+<li><strong>key_val</strong> &#8211; Additional key values (default: &#8220;&#8221;)</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">db = DbConnection(&#8216;mysql&#8217;, &#8216;localhost&#8217;, &#8216;user&#8217;, &#8216;password&#8217;, &#8216;main&#8217;)</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
+</div>
+<div class="section" id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -434,6 +340,7 @@ collect the pointers to the ORM.</p>
 <li><a class="reference internal" href="#">Reference</a><ul>
 <li><a class="reference internal" href="#module-screening_mgmt.screening_mgmt">Functions</a></li>
 <li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#exceptions">Exceptions</a></li>
 </ul>
 </li>
 </ul>
