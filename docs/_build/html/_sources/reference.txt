@@ -2,10 +2,6 @@
 Reference
 =========
 
-.. note::
-
-    Just a silly note.
-
 Functions
 ---------
 .. automodule:: screening_mgmt.screening_mgmt

@@ -51,14 +51,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: screening_mgmt</span>
 <span class="sd">    :platform: OSX, Windows</span>
-<span class="sd">    :synopsis: SCREENING_MGMT: A module to automate data handling from screening experi-</span>
-<span class="sd">ments. It is a GUI-based interface between raw experimental data and a data</span>
-<span class="sd">base, where data is stored according to pre-defined routines. It also pro-</span>
-<span class="sd">vides access to that data and displays it as plot or table.</span>
+<span class="sd">    :synopsis: SCREENING_MGMT: A module to automate data handling from screening</span>
+<span class="sd">    experiments. It is a GUI-based interface between raw experimental data and a</span>
+<span class="sd">    data base, where data is stored according to pre-defined routines. It also</span>
+<span class="sd">    provides access to that data and displays it as plot or table.</span>
 
-<span class="sd">Version: 0.1.1</span>
+<span class="sd">Version: 1.0.0</span>
 <span class="sd">Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi</span>
-<span class="sd">Last revised: 19-09-2014</span>
+<span class="sd">Last revised: 08-02-2016</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -139,7 +139,7 @@
 <span class="sd">    :return: None</span>
 <span class="sd">    :rtype: None</span>
 
-<span class="sd">    :Example: db = DbConnection(&#39;mysql&#39;, &#39;localhost&#39;, &#39;user&#39;, &#39;password&#39;, &#39;main&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; db = DbConnection(&#39;mysql&#39;, &#39;localhost&#39;, &#39;user&#39;, &#39;password&#39;, &#39;main&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dialect</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key_val</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -254,7 +254,7 @@
 <span class="sd">            columns in the target database, and the data types must be</span>
 <span class="sd">            consistent.</span>
 
-<span class="sd">        :Example: DbConnection.new_entry({&#39;compound_id&#39;: 123,</span>
+<span class="sd">        &gt;&gt;&gt; DbConnection.new_entry({&#39;compound_id&#39;: 123,</span>
 <span class="sd">            &#39;compound_name&#39;: &#39;cpd123&#39;, &#39;MW&#39;: 154.2})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -371,9 +371,9 @@
 <span class="sd">        :return: True in case of success, otherwise false.</span>
 <span class="sd">        :rtype: bool</span>
 
-<span class="sd">        :Example: DbConnection.write_results(&#39;load_data&#39;, &#39;users/&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; DbConnection.write_results(&#39;load_data&#39;, &#39;users/&#39;)</span>
 
-<span class="sd">        :seealso: On how to write a routine script, refer to the tutorial.</span>
+<span class="sd">        .. seealso:: On how to write a routine script, refer to the tutorial.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -524,7 +524,7 @@
 <span class="sd">        :return: Tuple of Dataframe with the retrieved results, dict</span>
 <span class="sd">        :rtype: Tuple</span>
 
-<span class="sd">        :seealso: To learn about SQLAlchemy syntax, refer to their documentation.</span>
+<span class="sd">        ..seealso:: To learn about SQLAlchemy syntax, refer to their documentation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data_pool</span> <span class="o">=</span> <span class="p">{}</span>
@@ -578,10 +578,10 @@
 <span class="sd">        :return: {&#39;list&#39;: &lt;summary as string&gt;, &#39;plot&#39;: &lt;matplotlib object&gt;}</span>
 <span class="sd">        :rtype: dict</span>
 
-<span class="sd">        :Example: results, dirs = DbConnection.load_results(&lt;filter&gt;, sl=True)</span>
-<span class="sd">        text, img = DbConnection.get_summary(&#39;analysis_script&#39;, &#39;user/&#39;, results)</span>
-<span class="sd">        print text</span>
-<span class="sd">        img.show()</span>
+<span class="sd">        &gt;&gt;&gt; results, dirs = DbConnection.load_results(&lt;filter&gt;, sl=True)</span>
+<span class="sd">        &gt;&gt;&gt; text, img = DbConnection.get_summary(&#39;analysis_script&#39;, &#39;user/&#39;, results)</span>
+<span class="sd">        &gt;&gt;&gt; print text</span>
+<span class="sd">        &gt;&gt;&gt; img.show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_dir</span><span class="p">)</span>
@@ -642,7 +642,7 @@
 <span class="sd">        :param str id_value: Primary key of updated record</span>
 <span class="sd">        :param dict val: name-value pairs of column to be updated and new values.</span>
 
-<span class="sd">        :Example: To update the molecular weight of compound 15 in the compound</span>
+<span class="sd">        ..Example:: To update the molecular weight of compound 15 in the compound</span>
 <span class="sd">            table: DbConnection.update(&#39;compound&#39;, &#39;cpd_id&#39;, &#39;15&#39;, {&#39;mw&#39;: 132.5}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 

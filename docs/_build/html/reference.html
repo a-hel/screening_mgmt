@@ -50,18 +50,11 @@
             
   <div class="section" id="reference">
 <h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Just a silly note.</p>
-</div>
 <div class="section" id="module-screening_mgmt.screening_mgmt">
 <span id="functions"></span><h2>Functions<a class="headerlink" href="#module-screening_mgmt.screening_mgmt" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-screening_mgmt"></span><p>ments. It is a GUI-based interface between raw experimental data and a data
-base, where data is stored according to pre-defined routines. It also pro-
-vides access to that data and displays it as plot or table.</p>
-<p>Version: 0.1.1
+<p>Version: 1.0.0
 Author: Andreas Helfenstein, <a class="reference external" href="mailto:andreas&#46;helfenstein&#37;&#52;&#48;helsinki&#46;fi">andreas<span>&#46;</span>helfenstein<span>&#64;</span>helsinki<span>&#46;</span>fi</a>
-Last revised: 19-09-2014</p>
+Last revised: 08-02-2016</p>
 <dl class="class">
 <dt id="screening_mgmt.screening_mgmt.DbConnection">
 <em class="property">class </em><code class="descclassname">screening_mgmt.screening_mgmt.</code><code class="descname">DbConnection</code><span class="sig-paren">(</span><em>dialect</em>, <em>host</em>, <em>user</em>, <em>pw</em>, <em>db</em>, <em>driver=None</em>, <em>key_val=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection" title="Permalink to this definition">¶</a></dt>
@@ -90,14 +83,14 @@ supports the following protocols: <em>drizzle</em>, <em>firebird</em>, <em>mssql
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">None</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">None</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">db = DbConnection(&#8216;mysql&#8217;, &#8216;localhost&#8217;, &#8216;user&#8217;, &#8216;password&#8217;, &#8216;main&#8217;)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span> <span class="o">=</span> <span class="n">DbConnection</span><span class="p">(</span><span class="s">&#39;mysql&#39;</span><span class="p">,</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="s">&#39;user&#39;</span><span class="p">,</span> <span class="s">&#39;password&#39;</span><span class="p">,</span> <span class="s">&#39;main&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="screening_mgmt.screening_mgmt.DbConnection.batch_load">
 <code class="descname">batch_load</code><span class="sig-paren">(</span><em>target</em>, <em>delim='</em>, <em>'</em>, <em>raw_file=None</em>, <em>update=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screening_mgmt/screening_mgmt.html#DbConnection.batch_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screening_mgmt.screening_mgmt.DbConnection.batch_load" title="Permalink to this definition">¶</a></dt>
@@ -159,17 +152,17 @@ retrieved via load_results().</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">{&#8216;list&#8217;: &lt;summary as string&gt;, &#8216;plot&#8217;: &lt;matplotlib object&gt;}</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">dict</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">results, dirs = DbConnection.load_results(&lt;filter&gt;, sl=True)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
 </td>
 </tr>
 </tbody>
 </table>
-<p>text, img = DbConnection.get_summary(&#8216;analysis_script&#8217;, &#8216;user/&#8217;, results)
-print text
-img.show()</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">,</span> <span class="n">dirs</span> <span class="o">=</span> <span class="n">DbConnection</span><span class="o">.</span><span class="n">load_results</span><span class="p">(</span><span class="o">&lt;</span><span class="nb">filter</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">sl</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span><span class="p">,</span> <span class="n">img</span> <span class="o">=</span> <span class="n">DbConnection</span><span class="o">.</span><span class="n">get_summary</span><span class="p">(</span><span class="s">&#39;analysis_script&#39;</span><span class="p">,</span> <span class="s">&#39;user/&#39;</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">text</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -186,14 +179,7 @@ compatible.
 :param bool dp: Display the result as a plot
 :return: Tuple of Dataframe with the retrieved results, dict
 :rtype: Tuple</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Seealso:</th><td class="field-body">To learn about SQLAlchemy syntax, refer to their documentation.</td>
-</tr>
-</tbody>
-</table>
+<p>..seealso:: To learn about SQLAlchemy syntax, refer to their documentation.</p>
 </dd></dl>
 
 <dl class="method">
@@ -204,7 +190,7 @@ compatible.
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>target</strong> (<em>str</em>) &#8211; Name of target database where the record is to be
 stored.</li>
 <li><strong>data</strong> (<em>dict</em>) &#8211; column - value pair. Column names must correspond to
@@ -213,12 +199,12 @@ consistent.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">DbConnection.new_entry({&#8216;compound_id&#8217;: 123,
-&#8216;compound_name&#8217;: &#8216;cpd123&#8217;, &#8216;MW&#8217;: 154.2})</p>
-</td>
-</tr>
 </tbody>
 </table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">DbConnection</span><span class="o">.</span><span class="n">new_entry</span><span class="p">({</span><span class="s">&#39;compound_id&#39;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+<span class="go">    &#39;compound_name&#39;: &#39;cpd123&#39;, &#39;MW&#39;: 154.2})</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -229,7 +215,7 @@ consistent.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>table</strong> (<em>str</em>) &#8211; Table where the value needs to be updated</li>
 <li><strong>id_field</strong> (<em>str</em>) &#8211; Column containing the primary key</li>
 <li><strong>id_value</strong> (<em>str</em>) &#8211; Primary key of updated record</li>
@@ -237,12 +223,12 @@ consistent.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">To update the molecular weight of compound 15 in the compound
-table: DbConnection.update(&#8216;compound&#8217;, &#8216;cpd_id&#8217;, &#8216;15&#8217;, {&#8216;mw&#8217;: 132.5}</p>
-</td>
-</tr>
 </tbody>
 </table>
+<dl class="docutils">
+<dt>..Example:: To update the molecular weight of compound 15 in the compound</dt>
+<dd>table: DbConnection.update(&#8216;compound&#8217;, &#8216;cpd_id&#8217;, &#8216;15&#8217;, {&#8216;mw&#8217;: 132.5}</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -267,17 +253,18 @@ before writing them to the database</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True in case of success, otherwise false.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first">DbConnection.write_results(&#8216;load_data&#8217;, &#8216;users/&#8217;)</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Seealso:</th><td class="field-body"><p class="first last">On how to write a routine script, refer to the tutorial.</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">DbConnection</span><span class="o">.</span><span class="n">write_results</span><span class="p">(</span><span class="s">&#39;load_data&#39;</span><span class="p">,</span> <span class="s">&#39;users/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">On how to write a routine script, refer to the tutorial.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -313,14 +300,14 @@ supports the following protocols: <em>drizzle</em>, <em>firebird</em>, <em>mssql
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">None</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">None</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><p class="first last">db = DbConnection(&#8216;mysql&#8217;, &#8216;localhost&#8217;, &#8216;user&#8217;, &#8216;password&#8217;, &#8216;main&#8217;)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span> <span class="o">=</span> <span class="n">DbConnection</span><span class="p">(</span><span class="s">&#39;mysql&#39;</span><span class="p">,</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="s">&#39;user&#39;</span><span class="p">,</span> <span class="s">&#39;password&#39;</span><span class="p">,</span> <span class="s">&#39;main&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>

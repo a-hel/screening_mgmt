@@ -56,30 +56,109 @@
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="using-the-module">
 <h2>Using the module<a class="headerlink" href="#using-the-module" title="Permalink to this headline">¶</a></h2>
-<p>First, you need to initialize a :py:class DbConnection object, specifying the necessary parameters to connect to your database:</p>
+<p>First, you need to initialize a <code class="xref py py-class docutils literal"><span class="pre">DbConnection</span></code> object, specifying the necessary parameters to connect to your database:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">screening_mgmt</span> <span class="kn">as</span> <span class="nn">sm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">DbConnection</span><span class="p">(</span><span class="n">dialect</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key_val</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The module uses SQLAlchemy to communicate with the database. At the moment, it supports the following dialects:</p>
-<p>&#8220;Drizzle&#8221;: &#8220;drizzle&#8221;,
-&#8220;Firebird&#8221;: &#8220;firebird&#8221;,
-&#8220;Microsoft SQL Server&#8221;: &#8220;mssql&#8221;,
-&#8220;MySQL&#8221;: &#8220;mysql&#8221;,
-&#8220;Oracle&#8221;: &#8220;oracle&#8221;,
-&#8220;PostgreSQL&#8221;: &#8220;postgresql&#8221;,
-&#8220;SQLite&#8221;: &#8220;sqlite&#8221;,
-&#8220;Sybase&#8221;: &#8220;sybase&#8221;</p>
+<div class="line-block">
+<div class="line">&#8220;Drizzle&#8221;: &#8220;drizzle&#8221;,</div>
+<div class="line">&#8220;Firebird&#8221;: &#8220;firebird&#8221;,</div>
+<div class="line">&#8220;Microsoft SQL Server&#8221;: &#8220;mssql&#8221;,</div>
+<div class="line">&#8220;MySQL&#8221;: &#8220;mysql&#8221;,</div>
+<div class="line">&#8220;Oracle&#8221;: &#8220;oracle&#8221;,</div>
+<div class="line">&#8220;PostgreSQL&#8221;: &#8220;postgresql&#8221;,</div>
+<div class="line">&#8220;SQLite&#8221;: &#8220;sqlite&#8221;,</div>
+<div class="line">&#8220;Sybase&#8221;: &#8220;sybase&#8221;</div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The module has only been tested with <em>SQLite</em>, <em>MySQL</em> and <em>Microsoft SQL Server</em>.</p>
+</div>
 </div>
 <div class="section" id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<p><em>Screening_mgmt</em> is an interface to integarate your data handling routines with your SQL database. It links raw data to (pre-)processing routines and automatizes data storage. It is designed to help people unfamiliar with the screening assays to quickly process store measurement data and look at results.</p>
+<p>It offeres a quick way to organize, store and retreive data from screening assays. On initialization, it creates seperate data tables for the screened compounds, the users and the measurement routines. Upon import of new data, it automatically updates</p>
 </div>
 <div class="section" id="security">
 <h2>Security<a class="headerlink" href="#security" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><em>screening_mgmt</em> is in no way a security layer for your database. It should only be used by people who have access to the database anyway. It does not provide any secure connection to the database nor is it protected against SQL injections or similar security risks.</p>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you just use this module to visualize existing results, you can skip ahead to the <em>GUI</em> section.</p>
+</div>
+<p>In order to work properly, you first need a database, where you can store your results.</p>
+<p>You need a so-called <em>routine</em> script to tell the program how to handle your data. Instructions on how to write such a script can be found in the following paragraph.</p>
+</div>
+<div class="section" id="preparing-the-routine">
+<h2>Preparing the routine<a class="headerlink" href="#preparing-the-routine" title="Permalink to this headline">¶</a></h2>
+<p>For each assay type, you can specify one or several routines. These are regular <em>Python</em> scripts with the following features:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">pl</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rcParams</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span><span class="o">,</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">load_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">),</span> <span class="n">newer_than</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">plate_size</span><span class="o">=</span><span class="mi">96</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is called when you add new data. You can use</span>
+<span class="sd">        load_range and newer_than arguments to limit the records you wish</span>
+<span class="sd">        to import.</span>
+<span class="sd">        Aggregate your data in a pandas dataframe.</span>
+<span class="sd">        Create a dictionary with the meta tags for your data record, so</span>
+<span class="sd">        it will be stored correctly in the database.</span>
+<span class="sd">        Return the dataframe and the dictionary as a tuple&quot;&quot;&quot;</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>  <span class="c"># Create an empty data frames to collect results</span>
+
+        <span class="n">meta_values</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;user&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">user_name</span><span class="o">&gt;</span><span class="p">,</span>
+                <span class="s">&quot;routine&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">routine_name</span><span class="o">&gt;</span><span class="p">,</span>
+                <span class="s">&quot;date&quot;</span><span class="p">:</span> <span class="p">,</span>
+                <span class="s">&quot;sample&quot;</span><span class="p">:</span> <span class="p">,</span>
+                <span class="s">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">meta_values</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">summarize_list</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is called when you display your data in list format.</span>
+<span class="sd">        It receives a pandas.DataFrame and returns a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">justify</span><span class="o">=</span><span class="s">&#39;left&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">summarize_plot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is called when you display your data as a plot.</span>
+<span class="sd">        It receives a pandas.DataFrame and returns a matplotlib object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="gui">
 <h2>GUI<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
-<p>Download the module from <em>GitHub</em>: <a class="reference external" href="https://github.com/a-hel/screening_mgmt/">github.com/a-hel/screening_mgmt</a>.</p>
+<p>The easiest way to use <em>screening_mgmt</em> is through its GUI, which is started as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">screening_mgmt</span> <span class="kn">as</span> <span class="nn">sm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sm</span><span class="o">.</span><span class="n">gui</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This first opens the connection dialog, which allows you to connect to an existing database.</p>
+<p>After succesful connection, the main menu is displayed.</p>
+<ul class="simple">
+<li>Query tab: Here, you can access the data in your database through the query builder. A click on the &#8216;Preview&#8217; button shows the SQL command that will be sent to the server. If you have the right routines set up, you can present the retrieved results as table or as graph.</li>
+<li>Manage tab: Manually add and modify routines, users and compounds. You can batch import records through csv files.</li>
+<li>Add tab: Add new data, either with an existing routine or by adding a new one. You can choose, which records you want to import by entering row numbers or a date. If your routine supports other arguments, you can specify them in the &#8216;keywords&#8217; field.</li>
+</ul>
 </div>
 <div class="section" id="command-line">
 <h2>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h2>
@@ -93,17 +172,16 @@ To start in command line mode, simply call</p>
 If you already have connected to a database before, it will list the previous connections.
 Follow the intructions on the screen in order to set up the connection.</p>
 <p>Once the connection is established, you get access to the following functions:</p>
-<p><strong>usr &lt;user_name&gt;</strong>: Add a new user to the database
-<strong>init</strong>: Initialize the database and build the underlying structure
-<strong>reset</strong>: Deletes (drops) all tables and re-initializes the database.
+<p><a href="#id1"><span class="problematic" id="id2">|</span></a><strong>usr &lt;user_name&gt;</strong>: Add a new user to the database
+<a href="#id3"><span class="problematic" id="id4">|</span></a><strong>init</strong>: Initialize the database and build the underlying structure
+<a href="#id5"><span class="problematic" id="id6">|</span></a><strong>reset</strong>: Deletes (drops) all tables and re-initializes the database.
 Warning: This step is irreversible!
-<strong>exe &lt;command&gt;</strong>: Execute raw SQL command.
-<strong>summary [&lt;table&gt;]</strong>: Shows a list of all tables in the database. If a table name is given, also shows all the columns of that table.
-<strong>load</strong>:
-<strong>enter &lt;routine&gt;</strong>: Load data according to the specified routine.
-<strong>close</strong>: Close the connection.
-<strong>gui</strong>: Start the module in graphical mode
-<strong>exit</strong>: Quits the console</p>
+<a href="#id7"><span class="problematic" id="id8">|</span></a><strong>exe &lt;command&gt;</strong>: Execute raw SQL command.
+<a href="#id9"><span class="problematic" id="id10">|</span></a><strong>summary [&lt;table&gt;]</strong>: Shows a list of all tables in the database. If a table name is given, also shows all the columns of that table.
+<a href="#id11"><span class="problematic" id="id12">|</span></a><strong>enter &lt;routine&gt;</strong>: Load data according to the specified routine.
+<a href="#id13"><span class="problematic" id="id14">|</span></a><strong>close</strong>: Close the connection.
+<a href="#id15"><span class="problematic" id="id16">|</span></a><strong>gui</strong>: Start the module in graphical mode
+<a href="#id17"><span class="problematic" id="id18">|</span></a><strong>exit</strong>: Quits the console</p>
 </div>
 </div>
 
@@ -119,6 +197,8 @@ Warning: This step is irreversible!
 <li><a class="reference internal" href="#using-the-module">Using the module</a></li>
 <li><a class="reference internal" href="#structure">Structure</a></li>
 <li><a class="reference internal" href="#security">Security</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#preparing-the-routine">Preparing the routine</a></li>
 <li><a class="reference internal" href="#gui">GUI</a></li>
 <li><a class="reference internal" href="#command-line">Command line</a></li>
 </ul>
