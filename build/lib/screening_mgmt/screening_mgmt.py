@@ -2,14 +2,14 @@
 """
 .. module:: screening_mgmt
     :platform: OSX, Windows
-    :synopsis: SCREENING_MGMT: A module to automate data handling from screening experi-
-ments. It is a GUI-based interface between raw experimental data and a data
-base, where data is stored according to pre-defined routines. It also pro-
-vides access to that data and displays it as plot or table.
+    :synopsis: SCREENING_MGMT: A module to automate data handling from screening
+    experiments. It is a GUI-based interface between raw experimental data and a
+    data base, where data is stored according to pre-defined routines. It also
+    provides access to that data and displays it as plot or table.
 
-Version: 0.1.1
+Version: 1.0.0
 Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi
-Last revised: 19-09-2014
+Last revised: 08-02-2016
 """
 
 
@@ -90,7 +90,7 @@ class DbConnection(object):
     :return: None
     :rtype: None
 
-    :Example: db = DbConnection('mysql', 'localhost', 'user', 'password', 'main')
+    >>> db = DbConnection('mysql', 'localhost', 'user', 'password', 'main')
     """
 
     def __init__(self, dialect, host, user, pw, db, driver=None, key_val=None):
@@ -205,7 +205,7 @@ class DbConnection(object):
             columns in the target database, and the data types must be
             consistent.
 
-        :Example: DbConnection.new_entry({'compound_id': 123,
+        >>> DbConnection.new_entry({'compound_id': 123,
             'compound_name': 'cpd123', 'MW': 154.2})
         """
 
@@ -322,9 +322,9 @@ class DbConnection(object):
         :return: True in case of success, otherwise false.
         :rtype: bool
 
-        :Example: DbConnection.write_results('load_data', 'users/')
+        >>> DbConnection.write_results('load_data', 'users/')
 
-        :seealso: On how to write a routine script, refer to the tutorial.
+        .. seealso:: On how to write a routine script, refer to the tutorial.
 
         """
 
@@ -475,7 +475,7 @@ class DbConnection(object):
         :return: Tuple of Dataframe with the retrieved results, dict
         :rtype: Tuple
 
-        :seealso: To learn about SQLAlchemy syntax, refer to their documentation.
+        ..seealso:: To learn about SQLAlchemy syntax, refer to their documentation.
         """
 
         data_pool = {}
@@ -529,10 +529,10 @@ class DbConnection(object):
         :return: {'list': <summary as string>, 'plot': <matplotlib object>}
         :rtype: dict
 
-        :Example: results, dirs = DbConnection.load_results(<filter>, sl=True)
-        text, img = DbConnection.get_summary('analysis_script', 'user/', results)
-        print text
-        img.show()
+        >>> results, dirs = DbConnection.load_results(<filter>, sl=True)
+        >>> text, img = DbConnection.get_summary('analysis_script', 'user/', results)
+        >>> print text
+        >>> img.show()
         """
 
         sys.path.append(user_dir)
@@ -593,7 +593,7 @@ class DbConnection(object):
         :param str id_value: Primary key of updated record
         :param dict val: name-value pairs of column to be updated and new values.
 
-        :Example: To update the molecular weight of compound 15 in the compound
+        ..Example:: To update the molecular weight of compound 15 in the compound
             table: DbConnection.update('compound', 'cpd_id', '15', {'mw': 132.5}
         """
 

@@ -26,5 +26,3 @@ def test_new_entry():
     db.new_entry(sm.Usr, data)
     user_name = db.session.query(sm.Usr.usr_name,).all()
     assert user_name[0][0] == 'testname'
-
-test_new_entry()
