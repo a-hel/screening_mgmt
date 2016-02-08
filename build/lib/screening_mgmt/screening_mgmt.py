@@ -1,13 +1,16 @@
 #!/usr/bin/python
-#
-# SCREENING_MGMT: A module to automate data handling from screening experi-
-# ments. It is a GUI-based interface between raw experimental data and a data
-# base, where data is stored according to pre-defined routines. It also pro-
-# vides access to that data and displays it as plot or table.
-#
-# Version: 0.1.1
-# Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi
-# Last revised: 19-09-2014
+"""
+.. module:: screening_mgmt
+    :platform: OSX, Windows
+    :synopsis: SCREENING_MGMT: A module to automate data handling from screening experi-
+ments. It is a GUI-based interface between raw experimental data and a data
+base, where data is stored according to pre-defined routines. It also pro-
+vides access to that data and displays it as plot or table.
+
+Version: 0.1.1
+Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi
+Last revised: 19-09-2014
+"""
 
 
 import os
@@ -23,6 +26,7 @@ import tkSimpleDialog
 import cmd
 import collections
 import shutil
+import urllib
 
 import sqlalchemy as sa
 import tkFileDialog as tkfd
@@ -42,6 +46,7 @@ __license__ = ""
 __docformat__ = "reStructuredText"
 
 Base = declarative_base()
+
 
 
 class DbError(Exception):
@@ -65,44 +70,30 @@ def _construct(**kwargs):
 
 
 class DbConnection(object):
-    """Interface to the database connection.
+    """
+    Interface to the database connection.
 
     Set up connection to a supported SQL database via SQLAlchemy and
     collect the pointers to the ORM.
+    Initialization of the DbConnection object does not automatically connect
+    to the database.
 
-    - **parameters**::
+    :param str dialect: The database protocol. At the moment, *SQLAlchemy*
+                supports the following protocols: *drizzle*, *firebird*, *mssql*,
+                *mysql*, *oracle*, *postgresql*, *sqlite*, and *sybase*.
+    :param str host: The host (e.g. *localhost* or `127.0.0.1`)
+    :param str user: Username
+    :param str pw: Password
+    :param str db: Database name
+    :param driver: Driver (default: "")
+    :param key_val: Additional key values (default: "")
+    :return: None
+    :rtype: None
 
-        :param dialect: The database protocol. At the moment, *SQLAlchemy*
-            supports the following protocols: *drizzle*, *firebird*, *mssql*,
-            *mysql*, *oracle*, *postgresql*, *sqlite*, and *sybase*.
-        :type dialect: String
-        :param host: The host (e.g. *localhost* or `127.0.0.1`)
-        :type host: String
-        :param user: Username
-        :type user: String
-        :param pw: Password
-        :type pw: String
-        :param db: Database name
-        :type db: String
-        :param driver: Driver (default: "")
-        :param key_val: Additional key values (default: "")
-        :return: None
-        :rtype: None
-
-    - **Example**::
-
-        :Example: balah
-
-    - **See also::
-
-        .. seealso:: blah
-
-
-
+    :Example: db = DbConnection('mysql', 'localhost', 'user', 'password', 'main')
     """
 
     def __init__(self, dialect, host, user, pw, db, driver=None, key_val=None):
-
 
         supported_db = {
             "Drizzle": "drizzle",
@@ -117,9 +108,9 @@ class DbConnection(object):
         if dialect.lower() in supported_db.values():
             self.dialect = dialect
         else:
-            raise DbError(
-                "Dialect '{0}' is not supported, try '{1}'."
+            err_msg = ("Dialect '{0}' is not supported, try '{1}'."
                 .format(dialect, "', '".join(supported_db.values())))
+            raise DbError(err_msg)
             return
         self.host = host
         self.user = user
@@ -133,7 +124,10 @@ class DbConnection(object):
         self.status = False
 
     def _initialize(self):
-        """Create the standard tables Usr, Cpd, Rtn, Res."""
+        """
+        Connect to the database and create the standard tables Usr, Cpd, Rtn,
+        Res.
+        """
 
         if not self.status:
             try:
@@ -149,16 +143,19 @@ class DbConnection(object):
             raise DbError("Could not establish connection to the database.")
 
     def _close_connection(self):
-        """Close the connection."""
+        """
+        Close the connection.
+        """
 
         self.engine.close()
         self.status = False
 
     def connect(self):
-        """Connect to database, create engine and metadata.
+        """
+        Connect to database, create engine and metadata.
 
-        Returns two values: A boolean for successful/unsuccessful connection,
-        and a string with a confirmation or error message.
+        :return: True if connection is successful
+        :rtype: bool
         """
 
         url_params = [
@@ -169,7 +166,16 @@ class DbConnection(object):
             self.host,
             self.key_val,
             self.database]
-        url = "{0}{1}://{2}:{3}@{4}/{5}{6}".format(*url_params)
+        if self.dialect == "mssql":
+            # Quick fix due to changes in SQLAlchemy API
+            params = urllib.quote_plus("DRIVER={SQL Server};SERVER={4};DATABASE={6};UID={2};PWD={3}".format(*url_params))
+            url = "mssql+pyodbc:///?odbc_connect=%s" % params
+        if self.dialect == "sqlite":
+            if not self.database:
+                self.database = ":memory:"
+            url = r"sqlite:///%s" % self.database
+        else:
+            url = "{0}{1}://{2}:{3}@{4}/{5}{6}".format(*url_params)
         try:
             # Set echo to True to see SQL
             self.engine = sa.create_engine(url, echo=False)
@@ -187,15 +193,20 @@ class DbConnection(object):
         Session = sa.orm.sessionmaker(bind=self.engine)
         self.session = Session()
         self.status = True
-        return True, "Connection successfully established"
+        return True
 
     def new_entry(self, target, data):
-        """Insert a new entry into the target table.
+        """
+        Insert a new entry into the target table.
 
-        Arguments:
-        target -- The name of the target database
-        data -- A dict where the keys must correspond to the columns of the
-                target table.
+        :param str target: Name of target database where the record is to be
+            stored.
+        :param dict data: column - value pair. Column names must correspond to
+            columns in the target database, and the data types must be
+            consistent.
+
+        :Example: DbConnection.new_entry({'compound_id': 123,
+            'compound_name': 'cpd123', 'MW': 154.2})
         """
 
         self.metadata.reflect(self.engine)
@@ -204,13 +215,16 @@ class DbConnection(object):
         self.session.commit()  # To do: Catch exceptions
 
     def batch_load(self, target, delim=",", raw_file=None, update=False):
-        """Load compound and user information from file.
+        """
+        Load compound and user information from csv file.
 
-        target -- The target database (e.g. Cpd, Rtn, Usr)
-        delim -- Delimiter used in txt and csv files, default is comma (",").
-                 This value is ignored when treating Excel files.
-        source_file -- The file to be loaded. If omitted, it can be chosen
-                       via a dialog.
+        :param str target: The target data table (e.g. Cpd, Rtn, Usr)
+        :param str delim: Delimiter used in txt and csv files, default is comma (",").
+                This value is ignored when reading Excel files.
+        :param str raw_file: Path to the source file. If omitted, it can be chosen
+                via a dialog.
+        :param bool update: If True, existing records will be updated to fit
+                the new data; if False the new records are ignored.
         """
 
         if isinstance(target, basestring):
@@ -294,14 +308,24 @@ class DbConnection(object):
             self.session.commit()
 
     def write_results(self, routine, user_dir, preview=False, *args, **kwargs):
-        """Write a new dataset to the main table.
+        """
+        Run routine and write the results into the main table.
 
         The function loads the user scripts from the user's working directory.
 
-        Arguments:
+        :param str routine: Python script for data import (without file
+                extension). The file must be saved in the user directory.
+        :param str user_dir: Directory of the routine script
+        :param bool preview: Whether or not to show a preview of the data
+                before writing them to the database
+        :param args, kwargs: Optional arguments for the routine script
+        :return: True in case of success, otherwise false.
+        :rtype: bool
 
-        routine -- The name of the routine
-        args, kwargs -- Will be passed to the user script
+        :Example: DbConnection.write_results('load_data', 'users/')
+
+        :seealso: On how to write a routine script, refer to the tutorial.
+
         """
 
         declined_rtn = []
@@ -437,17 +461,21 @@ class DbConnection(object):
 
     def load_results(self, filter_str,
             sl=True, sp=False, dl=False, dp=False):
-        """Retrieve data from the database.
+        """
+        Retrieve data from the database.
 
         Return the filtered data as a pandas data frame. Has to be called for
         every routine, since data sets from different routines might be in-
         compatible.
-        Arguments:
-        filter_str -- The filter string (SQLAlchemy syntax)
-        sl -- Boolean whether to save the result as a list
-        sp -- Boolean whether to save the result as a plot
-        dl -- Boolean whether to display the result as a list
-        dp -- Boolean whether to display the result as a plot
+        :param str filter_str: The filter string (SQLAlchemy syntax)
+        :param bool sl: Save the result as a list
+        :param bool sp: Save the result as a plot
+        :param bool dl: Display the result as a list
+        :param bool dp: Display the result as a plot
+        :return: Tuple of Dataframe with the retrieved results, dict
+        :rtype: Tuple
+
+        :seealso: To learn about SQLAlchemy syntax, refer to their documentation.
         """
 
         data_pool = {}
@@ -465,8 +493,6 @@ class DbConnection(object):
             raise DbError("Could not create filter\n{0}\n".format(filter_str) +
                 "Please try again.")
             return
-        #except sa.exc.ArgumentError:
-        #    return
         if a:
             for result in a:
                 routine = result[1]
@@ -490,15 +516,23 @@ class DbConnection(object):
 
     def get_summary(self, routine, user_dir, df, plot=0, list_=1,
             *args, **kwargs):
-        """Create a list for on-screen display or writing to file or
-        a plot for on-screen display or writing to file.
+        """
+        Prepare a summary for .
 
-        Calls the user-defined script associated with the routine.
-        Arguments:
-        routine -- The routine to be used
-        df -- The database, preferably retrieved via load_results().
-        plot -- boolean, whether plot is to be returned
-        list_ -- boolean, whether list is to be returned
+        :param str routine: Python script for data import (without file
+                extension). The file must be saved in the user directory.
+        :param str user_dir: Directory of the routine script
+        :param pandas.DataFrame df: The data frame to present, preferably
+                retrieved via load_results().
+        :param bool plot: Return plot
+        :param bool list_: Return list
+        :return: {'list': <summary as string>, 'plot': <matplotlib object>}
+        :rtype: dict
+
+        :Example: results, dirs = DbConnection.load_results(<filter>, sl=True)
+        text, img = DbConnection.get_summary('analysis_script', 'user/', results)
+        print text
+        img.show()
         """
 
         sys.path.append(user_dir)
@@ -516,11 +550,8 @@ class DbConnection(object):
                 except ValueError:
                     path, file_ = loc.rsplit("/", 1)
                 sys.path.append(path)
-                #try:
                 exec("import {0} as rtn".format(file_.rsplit(".",
                         1)[0])) in locals()
-                #except:
-                #    raise DbError("Impossible to open script")
             else:
                 return
         except SyntaxError:
@@ -554,13 +585,16 @@ class DbConnection(object):
         return summary
 
     def update(self, table, id_field, id_value, val):
-        """Update a field in the database.
+        """
+        Update a field in the database.
 
-        Arguments:
-        table -- The table that should be updated
-        id_code -- The primary key for the row to be updated
-        kwargs -- The keys must match the column names, the values are the
-                  updated values.
+        :param str table: Table where the value needs to be updated
+        :param str id_field: Column containing the primary key
+        :param str id_value: Primary key of updated record
+        :param dict val: name-value pairs of column to be updated and new values.
+
+        :Example: To update the molecular weight of compound 15 in the compound
+            table: DbConnection.update('compound', 'cpd_id', '15', {'mw': 132.5}
         """
 
         stmt = (
@@ -605,7 +639,8 @@ class Usr(Base):
     working_directory = Column(String(200))
 
     def __init__(self, conn, **kwargs):
-        """Construct user table and user directory.
+        """
+        Construct user table and user directory.
 
         If no user directory is defined in kwargs, a folder in the home
         directory is created.
@@ -760,8 +795,8 @@ class CmdLine(cmd.Cmd):
                 "User: ",
                 "Password: ",
                 "Database: ",
-                "Driver: ",
-                "Key values: "]:
+                "Driver (optional): ",
+                "Key values (optional): "]:
                 conn.append(raw_input(elem))
 
         else:
@@ -1047,7 +1082,7 @@ class DB_connection():
     def _get_about(self):
         """Show info"""
 
-        tkMessageBox.showinfo("About", "Screening Managemant Software\n\n" +
+        tkMessageBox.showinfo("About", "Screening Management Software\n\n" +
             "Andreas Helfenstein\n" +
             "University of Helsinki\n\n" +
             "andreas.helfenstein@helsinki.fi")
@@ -1961,12 +1996,10 @@ class CpdMenu():
 
         global line_no
         line_no = 1
-
         tk.Label(f, text="New compound",
                 font=("Helvetica", 14),
                 pady=3,
                 justify = "left").grid(row=0, column=0, columnspan=2, sticky="w")
-
         for keys in self.form:
             tk.Label(f, text=self.form[keys][0]).grid(row=line_no, column=0,
                 sticky="nw")
@@ -1974,8 +2007,6 @@ class CpdMenu():
                 self.form[keys][2][i].grid(row=line_no, column=1+i, sticky="we")
             line_no += 1
         self.elem_collection = {}
-
-
 
         tk.Button(f, text="Load", command=lambda: self._update_fields(),
             width=12).grid(column=3, row=1, sticky="we")
@@ -1998,13 +2029,9 @@ class CpdMenu():
         self.conn.metadata.reflect(self.conn.engine)
         name = self.form['name'][2][0].get()
         col_names = [eval("Cpd.{0}".format(keys)) for keys in self.form]
-
         val = self.conn.session.query(*col_names).filter(Cpd.name == name).first()
-        #col = self.conn.metadata.tables['users'].columns
         col = self.form.keys()
-
         dic = dict((key, value) for (key, value) in zip(col, val))
-        #print dic
         for keys in self.form:
             self.form[keys][2][0].delete(0, tk.END)
             if dic[keys]:
@@ -2079,7 +2106,6 @@ class PreviewDialog:
     def __init__(self, parent, df):
 
         top = self.top = tk.Toplevel(parent)
-
         tk.Label(top, text="This is how your data will be sent to the " +
             "database.\nClick 'Accept' to proceed or 'Discard' to " +
             "cancel").grid(row=1, column=0, columnspan=5)
@@ -2087,9 +2113,6 @@ class PreviewDialog:
         text_area = ScrolledText(top, width=100, height=50, wrap=tk.NONE)
         text_area.insert(tk.INSERT, df)
         text_area.grid(column=0, row=2, columnspan=5)
-
-
-
         tk.Button(top, text="Accept", command=self.ok).grid(row=3,
             column=0, sticky="we")
         tk.Button(top, text="Discard", command=self.quit).grid(row=3,
@@ -2275,10 +2298,15 @@ def console(*args, **kwargs):
 
 
 def gui(*args, **kwargs):
-    """Start the GUI"""
+    """Start the graphical user interface, which gives access to the
+    main functionality.
+    """
 
     root = tk.Tk()
     root.title('Database connection')
     connection_dlg = DB_connection(root)
     root.wait_window(connection_dlg.parent)
     return True
+
+if __name__ == "__main__":
+    gui()
