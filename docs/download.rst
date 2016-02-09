@@ -12,7 +12,7 @@ Installation
 
 Just run ``setup.py`` from the terminal:
 
-``python setup.py -install``
+``python setup.py install``
 
 To verify that the installation worked, type
 
