@@ -179,7 +179,10 @@ compatible.
 :param bool dp: Display the result as a plot
 :return: Tuple of Dataframe with the retrieved results, dict
 :rtype: Tuple</p>
-<p>..seealso:: To learn about SQLAlchemy syntax, refer to their documentation.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">To learn about SQLAlchemy syntax, refer to their documentation.</p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -225,10 +228,11 @@ consistent.</li>
 </tr>
 </tbody>
 </table>
-<dl class="docutils">
-<dt>..Example:: To update the molecular weight of compound 15 in the compound</dt>
-<dd>table: DbConnection.update(&#8216;compound&#8217;, &#8216;cpd_id&#8217;, &#8216;15&#8217;, {&#8216;mw&#8217;: 132.5}</dd>
-</dl>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># To update the molecular weight of compound 15 in the compound</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># table:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DbConnection</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;compound&#39;</span><span class="p">,</span> <span class="s">&#39;cpd_id&#39;</span><span class="p">,</span> <span class="s">&#39;15&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;mw&#39;</span><span class="p">:</span> <span class="mf">132.5</span><span class="p">}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
