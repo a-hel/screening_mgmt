@@ -8,7 +8,6 @@ Functions
    :members: DbConnection
 
 
-
 Classes
 -------
 
