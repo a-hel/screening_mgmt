@@ -475,7 +475,7 @@ class DbConnection(object):
         :return: Tuple of Dataframe with the retrieved results, dict
         :rtype: Tuple
 
-        ..seealso:: To learn about SQLAlchemy syntax, refer to their documentation.
+        .. seealso:: To learn about SQLAlchemy syntax, refer to their documentation.
         """
 
         data_pool = {}
@@ -593,8 +593,9 @@ class DbConnection(object):
         :param str id_value: Primary key of updated record
         :param dict val: name-value pairs of column to be updated and new values.
 
-        ..Example:: To update the molecular weight of compound 15 in the compound
-            table: DbConnection.update('compound', 'cpd_id', '15', {'mw': 132.5}
+        >>> # To update the molecular weight of compound 15 in the compound
+        >>> # table:
+        >>> DbConnection.update('compound', 'cpd_id', '15', {'mw': 132.5}
         """
 
         stmt = (
