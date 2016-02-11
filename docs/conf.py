@@ -49,7 +49,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # Add path
-os.path.abspath('../')
+os.path.abspath('../screening_mgmt')
 
 # General information about the project.
 project = u'Screening_mgmt'
