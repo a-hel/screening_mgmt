@@ -4,7 +4,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Screening_mgmt's documentation!
+Welcome to screening_mgmt's documentation!
 ==========================================
 test line 2
 
