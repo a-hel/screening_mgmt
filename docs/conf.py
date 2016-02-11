@@ -50,6 +50,7 @@ master_doc = 'index'
 
 # Add path
 os.path.abspath('../screening_mgmt')
+os.path.abspath('../')
 
 # General information about the project.
 project = u'Screening_mgmt'

@@ -17,5 +17,4 @@ Contents:
    tutorial
    reference
 
- Version
 
