@@ -3,9 +3,10 @@
 .. module:: screening_mgmt
     :platform: OSX, Windows
     :synopsis: SCREENING_MGMT: A module to automate data handling from screening
-    experiments. It is a GUI-based interface between raw experimental data and a
-    data base, where data is stored according to pre-defined routines. It also
-    provides access to that data and displays it as plot or table.
+        experiments. It is a GUI-based interface between raw experimental data and a
+        data base, where data is stored according to pre-defined routines. It also
+        provides access to that data and displays it as plot or table.
+
 
 Version: 1.0.0
 Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi
