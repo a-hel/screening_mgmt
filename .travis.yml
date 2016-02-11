@@ -16,7 +16,7 @@ install:
 # command to run tests
 script:
     - py.test ./screening_mgmt/test_module.py
-    - coverage run --source=home ./screening_mgmt/test_module.py test home
+    - coverage run --source=home ./screening_mgmt/screening_mgmt.py test home
 
 after_success: coveralls
 
