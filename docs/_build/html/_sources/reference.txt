@@ -17,5 +17,5 @@ Classes
 Exceptions
 ----------
 
-.. autoexception::
+.. autoexception:: screening_mgmt.screening_mgmt.DbError
 

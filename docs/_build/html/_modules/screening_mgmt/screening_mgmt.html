@@ -52,9 +52,10 @@
 <span class="sd">.. module:: screening_mgmt</span>
 <span class="sd">    :platform: OSX, Windows</span>
 <span class="sd">    :synopsis: SCREENING_MGMT: A module to automate data handling from screening</span>
-<span class="sd">    experiments. It is a GUI-based interface between raw experimental data and a</span>
-<span class="sd">    data base, where data is stored according to pre-defined routines. It also</span>
-<span class="sd">    provides access to that data and displays it as plot or table.</span>
+<span class="sd">        experiments. It is a GUI-based interface between raw experimental data and a</span>
+<span class="sd">        data base, where data is stored according to pre-defined routines. It also</span>
+<span class="sd">        provides access to that data and displays it as plot or table.</span>
+
 
 <span class="sd">Version: 1.0.0</span>
 <span class="sd">Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi</span>
@@ -98,7 +99,7 @@
 
 
 
-<span class="k">class</span> <span class="nc">DbError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="DbError"><a class="viewcode-back" href="../../reference.html#screening_mgmt.screening_mgmt.DbError">[docs]</a><span class="k">class</span> <span class="nc">DbError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An error with the database communication&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">val</span><span class="p">):</span>
@@ -107,7 +108,7 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
 
-
+</div>
 <span class="k">def</span> <span class="nf">_construct</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Set attributes from kwargs.</span>
 

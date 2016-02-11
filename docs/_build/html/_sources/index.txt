@@ -6,7 +6,6 @@
 
 Welcome to screening_mgmt's documentation!
 ==========================================
-test line 3
 
 Contents:
 
