@@ -524,7 +524,7 @@
 <span class="sd">        :return: Tuple of Dataframe with the retrieved results, dict</span>
 <span class="sd">        :rtype: Tuple</span>
 
-<span class="sd">        ..seealso:: To learn about SQLAlchemy syntax, refer to their documentation.</span>
+<span class="sd">        .. seealso:: To learn about SQLAlchemy syntax, refer to their documentation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data_pool</span> <span class="o">=</span> <span class="p">{}</span>
@@ -642,8 +642,9 @@
 <span class="sd">        :param str id_value: Primary key of updated record</span>
 <span class="sd">        :param dict val: name-value pairs of column to be updated and new values.</span>
 
-<span class="sd">        ..Example:: To update the molecular weight of compound 15 in the compound</span>
-<span class="sd">            table: DbConnection.update(&#39;compound&#39;, &#39;cpd_id&#39;, &#39;15&#39;, {&#39;mw&#39;: 132.5}</span>
+<span class="sd">        &gt;&gt;&gt; # To update the molecular weight of compound 15 in the compound</span>
+<span class="sd">        &gt;&gt;&gt; # table:</span>
+<span class="sd">        &gt;&gt;&gt; DbConnection.update(&#39;compound&#39;, &#39;cpd_id&#39;, &#39;15&#39;, {&#39;mw&#39;: 132.5}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">stmt</span> <span class="o">=</span> <span class="p">(</span>
