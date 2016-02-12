@@ -53,9 +53,7 @@ def test_Usr():
     usr = sm.Usr(None)
     assert usr.__tablename__ == "users"
     
-def test_Res():
-    res = sm.Res(None)
-    assert res.__tablename__ == "results"
+
 
 if __name__ == "__main__":
-    test_Cpd()
+    pass
