@@ -1,13 +1,17 @@
 #!/usr/bin/python
-#
-# SCREENING_MGMT: A module to automate data handling from screening experi-
-# ments. It is a GUI-based interface between raw experimental data and a data
-# base, where data is stored according to pre-defined routines. It also pro-
-# vides access to that data and displays it as plot or table.
-#
-# Version: 0.1.1
-# Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi
-# Last revised: 19-09-2014
+"""
+.. module:: screening_mgmt
+    :platform: OSX, Windows
+    :synopsis: SCREENING_MGMT: A module to automate data handling from screening
+        experiments. It is a GUI-based interface between raw experimental data and a
+        data base, where data is stored according to pre-defined routines. It also
+        provides access to that data and displays it as plot or table.
+
+
+Version: 1.0.0
+Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi
+Last revised: 08-02-2016
+"""
 
 
 import os
@@ -23,6 +27,7 @@ import tkSimpleDialog
 import cmd
 import collections
 import shutil
+import urllib
 
 import sqlalchemy as sa
 import tkFileDialog as tkfd
@@ -36,8 +41,13 @@ from sqlalchemy import (Column, ForeignKey, String, Table, Boolean, Unicode,
     Float, Integer, DateTime, PickleType, or_, Interval)
 
 
-__version__ = "0.1.1"
+__version__ = "1.0.0"
+__license__ = ""
+#__revision__ = ""
+__docformat__ = "reStructuredText"
+
 Base = declarative_base()
+
 
 
 class DbError(Exception):
@@ -60,23 +70,31 @@ def _construct(**kwargs):
         setattr(self, key, kwargs[key])
 
 
-class DbConnection:
+class DbConnection(object):
+    """
+    Interface to the database connection.
+
+    Set up connection to a supported SQL database via SQLAlchemy and
+    collect the pointers to the ORM.
+    Initialization of the DbConnection object does not automatically connect
+    to the database.
+
+    :param str dialect: The database protocol. At the moment, *SQLAlchemy*
+                supports the following protocols: *drizzle*, *firebird*, *mssql*,
+                *mysql*, *oracle*, *postgresql*, *sqlite*, and *sybase*.
+    :param str host: The host (e.g. *localhost* or `127.0.0.1`)
+    :param str user: Username
+    :param str pw: Password
+    :param str db: Database name
+    :param driver: Driver (default: "")
+    :param key_val: Additional key values (default: "")
+    :return: None
+    :rtype: None
+
+    >>> db = DbConnection('mysql', 'localhost', 'user', 'password', 'main')
+    """
+
     def __init__(self, dialect, host, user, pw, db, driver=None, key_val=None):
-        """Interface to the database connection.
-
-        Set up connection to a supported SQL database via SQLAlchemy and
-        collect the pointers to the ORM.
-
-        Arguments:
-        dialect -- The database protocol
-        host -- The host (eg. localhost or 127.0.0.1)
-        user -- User name
-        pw -- Password
-        db -- Database name
-        driver -- Driver (default: "")
-        key_val -- Additional key values (default: "")
-
-        """
 
         supported_db = {
             "Drizzle": "drizzle",
@@ -91,9 +109,9 @@ class DbConnection:
         if dialect.lower() in supported_db.values():
             self.dialect = dialect
         else:
-            raise DbError(
-                "Dialect '{0}' is not supported, try '{1}'."
+            err_msg = ("Dialect '{0}' is not supported, try '{1}'."
                 .format(dialect, "', '".join(supported_db.values())))
+            raise DbError(err_msg)
             return
         self.host = host
         self.user = user
@@ -105,9 +123,12 @@ class DbConnection:
             self.driver = ""
         self.key_val = key_val
         self.status = False
-        
+
     def _initialize(self):
-        """Create the standard tables Usr, Cpd, Rtn, Res."""
+        """
+        Connect to the database and create the standard tables Usr, Cpd, Rtn,
+        Res.
+        """
 
         if not self.status:
             try:
@@ -121,18 +142,21 @@ class DbConnection:
             self.metadata.create_all(self.engine)
         else:
             raise DbError("Could not establish connection to the database.")
-            
+
     def _close_connection(self):
-        """Close the connection."""
+        """
+        Close the connection.
+        """
 
         self.engine.close()
         self.status = False
 
     def connect(self):
-        """Connect to database, create engine and metadata.
+        """
+        Connect to database, create engine and metadata.
 
-        Returns two values: A boolean for successful/unsuccessful connection,
-        and a string with a confirmation or error message.
+        :return: True if connection is successful
+        :rtype: bool
         """
 
         url_params = [
@@ -143,7 +167,16 @@ class DbConnection:
             self.host,
             self.key_val,
             self.database]
-        url = "{0}{1}://{2}:{3}@{4}/{5}{6}".format(*url_params)
+        if self.dialect == "mssql":
+            # Quick fix due to changes in SQLAlchemy API
+            params = urllib.quote_plus("DRIVER={SQL Server};SERVER={4};DATABASE={6};UID={2};PWD={3}".format(*url_params))
+            url = "mssql+pyodbc:///?odbc_connect=%s" % params
+        if self.dialect == "sqlite":
+            if not self.database:
+                self.database = ":memory:"
+            url = r"sqlite:///%s" % self.database
+        else:
+            url = "{0}{1}://{2}:{3}@{4}/{5}{6}".format(*url_params)
         try:
             # Set echo to True to see SQL
             self.engine = sa.create_engine(url, echo=False)
@@ -161,15 +194,20 @@ class DbConnection:
         Session = sa.orm.sessionmaker(bind=self.engine)
         self.session = Session()
         self.status = True
-        return True, "Connection successfully established"
+        return True
 
     def new_entry(self, target, data):
-        """Insert a new entry into the target table.
+        """
+        Insert a new entry into the target table.
 
-        Arguments:
-        target -- The name of the target database
-        data -- A dict where the keys must correspond to the columns of the
-                target table.
+        :param str target: Name of target database where the record is to be
+            stored.
+        :param dict data: column - value pair. Column names must correspond to
+            columns in the target database, and the data types must be
+            consistent.
+
+        >>> DbConnection.new_entry({'compound_id': 123,
+            'compound_name': 'cpd123', 'MW': 154.2})
         """
 
         self.metadata.reflect(self.engine)
@@ -178,13 +216,16 @@ class DbConnection:
         self.session.commit()  # To do: Catch exceptions
 
     def batch_load(self, target, delim=",", raw_file=None, update=False):
-        """Load compound and user information from file.
+        """
+        Load compound and user information from csv file.
 
-        target -- The target database (e.g. Cpd, Rtn, Usr)
-        delim -- Delimiter used in txt and csv files, default is comma (",").
-                 This value is ignored when treating Excel files.
-        source_file -- The file to be loaded. If omitted, it can be chosen
-                       via a dialog.
+        :param str target: The target data table (e.g. Cpd, Rtn, Usr)
+        :param str delim: Delimiter used in txt and csv files, default is comma (",").
+                This value is ignored when reading Excel files.
+        :param str raw_file: Path to the source file. If omitted, it can be chosen
+                via a dialog.
+        :param bool update: If True, existing records will be updated to fit
+                the new data; if False the new records are ignored.
         """
 
         if isinstance(target, basestring):
@@ -222,7 +263,7 @@ class DbConnection:
                                     table.update().
                                     where(table.c[id_field] == dic[id_field]).
                                     values(**dic))
-                                    
+
                                 self.engine.execute(stmt)
                                 print "Record '{0}' updated."\
                                     .format(dic[id_field])
@@ -251,14 +292,14 @@ class DbConnection:
                                 table.update().
                                 where(table.c[id_field] == dic[id_field]).
                                 values(**dic))
-                                
+
                             self.engine.execute(stmt)
                             print "Record '{0}' updated."\
                                 .format(dic[id_field])
                         else:
                             print "Record '{0}' already exists."\
                                 .format(dic[id_field])
-                        
+
             else:
                 tkMessageBox.showerror("Invalid file format",
                     "Could not open file of type '{0}'.\n".format(ext) +
@@ -266,16 +307,26 @@ class DbConnection:
                     "xls, xlsx, txt, csv.")
                 return
             self.session.commit()
-            
+
     def write_results(self, routine, user_dir, preview=False, *args, **kwargs):
-        """Write a new dataset to the main table.
+        """
+        Run routine and write the results into the main table.
 
         The function loads the user scripts from the user's working directory.
 
-        Arguments:
+        :param str routine: Python script for data import (without file
+                extension). The file must be saved in the user directory.
+        :param str user_dir: Directory of the routine script
+        :param bool preview: Whether or not to show a preview of the data
+                before writing them to the database
+        :param args, kwargs: Optional arguments for the routine script
+        :return: True in case of success, otherwise false.
+        :rtype: bool
 
-        routine -- The name of the routine
-        args, kwargs -- Will be passed to the user script
+        >>> DbConnection.write_results('load_data', 'users/')
+
+        .. seealso:: On how to write a routine script, refer to the tutorial.
+
         """
 
         declined_rtn = []
@@ -316,7 +367,7 @@ class DbConnection:
                 if isinstance(sets, list):
                     if isinstance(sets[0], list):
                         if isinstance(sets[0][0], pandas.DataFrame)\
-                        and isinstance(sets[0][1], dict): 
+                        and isinstance(sets[0][1], dict):
                             struct = True
             if not struct:
                 tkMessageBox.showerror("Structural error",
@@ -331,7 +382,7 @@ class DbConnection:
                     return False
                 else:
                     root.destroy()
-                
+
             for dataset in sets:
                 meta_values = dataset[1]
                 df = dataset[0]
@@ -346,7 +397,7 @@ class DbConnection:
                         record['link'] = current_record.res_id
                         self.metadata.tables[meta_values['routine']]\
                             .insert(values=record).execute()
-                            
+
                     except KeyError, e:
                         e_str = str(e)
                         e_str = e_str.replace("'", "")
@@ -355,7 +406,7 @@ class DbConnection:
                             dialog = tkMessageBox.askyesno("Unknown routine",
                                 "Would you like to automatically add the " +
                                 "routine '{0}'?".format(e_str))
-                            if dialog:                            
+                            if dialog:
                                 d_fields = {}
                                 for keys in df.columns:
                                     if df[keys].dtypes == "bool":
@@ -376,28 +427,28 @@ class DbConnection:
                                     #    d_type = Float(precision=20)
                                     else:
                                         d_type = Unicode(200)
-                                        
+
                                     d_fields[keys] = d_type
-                                
+
                                 values = {"alias": e_str,
                                     "full_name": e_str,
                                     "data_dimension": 1,
                                     "author": meta_values["user"],
                                     "data_fields": d_fields,
                                     "script_path": (path, file_)}
-    
+
                                 self.new_entry(Rtn, values)
-                                
+
                                 self.metadata.reflect(self.engine)
                                 self.session.commit()
                                 record['link'] = current_record.res_id
                                 self.metadata.tables[meta_values['routine']]\
                                     .insert(values=record).execute()
-                                    
-    
+
+
                             else:
                                 declined_rtn.append(e_str)
-                        
+
                     except:
                         # Necessary to keep the program going despite one bad set
                         e = sys.exc_info()
@@ -407,21 +458,25 @@ class DbConnection:
                 self.session.commit()
                 self.metadata.create_all(bind=self.engine, checkfirst=True)
                 return True
-                
+
 
     def load_results(self, filter_str,
             sl=True, sp=False, dl=False, dp=False):
-        """Retrieve data from the database.
+        """
+        Retrieve data from the database.
 
         Return the filtered data as a pandas data frame. Has to be called for
         every routine, since data sets from different routines might be in-
         compatible.
-        Arguments:
-        filter_str -- The filter string (SQLAlchemy syntax)
-        sl -- Boolean whether to save the result as a list
-        sp -- Boolean whether to save the result as a plot
-        dl -- Boolean whether to display the result as a list
-        dp -- Boolean whether to display the result as a plot
+        :param str filter_str: The filter string (SQLAlchemy syntax)
+        :param bool sl: Save the result as a list
+        :param bool sp: Save the result as a plot
+        :param bool dl: Display the result as a list
+        :param bool dp: Display the result as a plot
+        :return: Tuple of Dataframe with the retrieved results, dict
+        :rtype: Tuple
+
+        .. seealso:: To learn about SQLAlchemy syntax, refer to their documentation.
         """
 
         data_pool = {}
@@ -439,11 +494,9 @@ class DbConnection:
             raise DbError("Could not create filter\n{0}\n".format(filter_str) +
                 "Please try again.")
             return
-        #except sa.exc.ArgumentError:
-        #    return
         if a:
             for result in a:
-                routine = result[1]                
+                routine = result[1]
                 tbl = Table(routine, self.metadata, autoload=True,
                     autoload_with=self.engine)
                 c = tbl.select().where(tbl.c.link == result[0])
@@ -464,15 +517,23 @@ class DbConnection:
 
     def get_summary(self, routine, user_dir, df, plot=0, list_=1,
             *args, **kwargs):
-        """Create a list for on-screen display or writing to file or
-        a plot for on-screen display or writing to file.
+        """
+        Prepare a summary for .
 
-        Calls the user-defined script associated with the routine.
-        Arguments:
-        routine -- The routine to be used
-        df -- The database, preferably retrieved via load_results().
-        plot -- boolean, whether plot is to be returned
-        list_ -- boolean, whether list is to be returned
+        :param str routine: Python script for data import (without file
+                extension). The file must be saved in the user directory.
+        :param str user_dir: Directory of the routine script
+        :param pandas.DataFrame df: The data frame to present, preferably
+                retrieved via load_results().
+        :param bool plot: Return plot
+        :param bool list_: Return list
+        :return: {'list': <summary as string>, 'plot': <matplotlib object>}
+        :rtype: dict
+
+        >>> results, dirs = DbConnection.load_results(<filter>, sl=True)
+        >>> text, img = DbConnection.get_summary('analysis_script', 'user/', results)
+        >>> print text
+        >>> img.show()
         """
 
         sys.path.append(user_dir)
@@ -490,11 +551,8 @@ class DbConnection:
                 except ValueError:
                     path, file_ = loc.rsplit("/", 1)
                 sys.path.append(path)
-                #try:
                 exec("import {0} as rtn".format(file_.rsplit(".",
                         1)[0])) in locals()
-                #except:
-                #    raise DbError("Impossible to open script")
             else:
                 return
         except SyntaxError:
@@ -528,13 +586,17 @@ class DbConnection:
         return summary
 
     def update(self, table, id_field, id_value, val):
-        """Update a field in the database.
+        """
+        Update a field in the database.
 
-        Arguments:
-        table -- The table that should be updated
-        id_code -- The primary key for the row to be updated
-        kwargs -- The keys must match the column names, the values are the
-                  updated values.
+        :param str table: Table where the value needs to be updated
+        :param str id_field: Column containing the primary key
+        :param str id_value: Primary key of updated record
+        :param dict val: name-value pairs of column to be updated and new values.
+
+        >>> # To update the molecular weight of compound 15 in the compound
+        >>> # table:
+        >>> DbConnection.update('compound', 'cpd_id', '15', {'mw': 132.5}
         """
 
         stmt = (
@@ -542,7 +604,7 @@ class DbConnection:
             where(table.c[id_field] == id_value).
             values(**val))
         self.engine.execute(stmt)
-        
+
 
 class Cpd(Base):
     """Class for the compound table"""
@@ -579,7 +641,8 @@ class Usr(Base):
     working_directory = Column(String(200))
 
     def __init__(self, conn, **kwargs):
-        """Construct user table and user directory.
+        """
+        Construct user table and user directory.
 
         If no user directory is defined in kwargs, a folder in the home
         directory is created.
@@ -655,8 +718,8 @@ class Rtn(Base):
                 os.rename(new_path, new_name)
             except WindowsError:
                 print "File already exists"
-            
-            
+
+
 
 
 class Res(Base):
@@ -711,7 +774,7 @@ class Res(Base):
                 conn.session.query(Rtn.rtn_id)
                 .filter(Rtn.alias==meta_data['routine'])
                 .scalar())
-                
+
 
 class CmdLine(cmd.Cmd):
     """Start simple command processor for debugging/low level functions."""
@@ -734,21 +797,21 @@ class CmdLine(cmd.Cmd):
                 "User: ",
                 "Password: ",
                 "Database: ",
-                "Driver: ",
-                "Key values: "]:
+                "Driver (optional): ",
+                "Key values (optional): "]:
                 conn.append(raw_input(elem))
-                
+
         else:
             choice = int(choice)
             conn += rec_conn[choice][0:3]
             conn.append(raw_input("Password:"))
             conn += rec_conn[choice][4:]
-            
+
         self.connection = DbConnection(*conn)
         self.connection.connect()
         self.prompt = '>>> '
 
-    
+
     def do_usr(self, line):
         """Add the user [line]."""
 
@@ -772,7 +835,7 @@ class CmdLine(cmd.Cmd):
             print ("Could not initialize the Database: \n\n{0}".format(e))
 
     def do_reset(self, line):
-        """Drop all tables irreversibly and rebuild the basic 
+        """Drop all tables irreversibly and rebuild the basic
         tables of the database.
         """
 
@@ -788,7 +851,7 @@ class CmdLine(cmd.Cmd):
                     print "Could not reset database. Try again"
             self.connection._initialize()
             print("Database reset.")
-            
+
     def do_exe(self, line):
         """Execute line as SQL statement.
         """
@@ -798,7 +861,7 @@ class CmdLine(cmd.Cmd):
             result = self.connection.conn.execute(line)
         except sa.exc.ProgrammingError, e:
             result = str(e)
-        
+
         print "OUT: >> {0}".format(result)
 
     def do_summary(self, line):
@@ -864,11 +927,11 @@ class CmdLine(cmd.Cmd):
             self.connection.close()
         except AttributeError:
             print "No active connection"
-    
+
     def do_gui(self, line):
         """Start the GUI."""
-        
-        
+
+
         root = tk.Tk()
         root.title('Database connection')
         connection_dlg = MainMenu(root, self.connection)
@@ -888,10 +951,10 @@ class CmdLine(cmd.Cmd):
         return True
 
 class DB_connection():
-    
+
     def __init__(self, parent):
         """Show the input mask to connect to the database.
-        
+
         Refer to the documentation for a detailed description.
         """
 
@@ -908,7 +971,7 @@ class DB_connection():
             "User",
             "Password",
             "Database"
-            ]        
+            ]
         self.pw_field = self.field_names[3]
         self.db_list = {
             "Drizzle": "drizzle",
@@ -919,7 +982,7 @@ class DB_connection():
             "PostgreSQL": "postgresql",
             "SQLite": "sqlite",
             "Sybase": "sybase"
-            }        
+            }
         f = tk.Frame(self.parent, padx=1, pady=1, bd=5)
         f.pack()
         for field in range(0, len(self.field_names)):
@@ -979,39 +1042,39 @@ class DB_connection():
         optmenu.add_command(label="Help", command=self._show_help)
         self.parent.config(menu=self.menubar)
         self.input_fields[0].focus_set()
-        
+
     def _rep_field(self, x):
         """Return autofill function for the dialect box"""
-        
+
         def on_click():
             self.input_fields[0].delete(0, tk.END)
             self.input_fields[0].insert(0, self.db_list[x])
         return lambda: on_click()
-     
+
     def _get_ref(self, x):
         """Return autofill function for the dialect box"""
-        
+
         def on_click():
             for i in range(0, len(self.input_fields)):
                 self.input_fields[i].delete(0, tk.END)
                 self.input_fields[i].insert(0, x[i])
                 self.input_fields[3].focus_set()
         return lambda: on_click()
-               
-        
+
+
 
     def _toggle_pw(self):
         """Show or hide password"""
-        
+
         pos = self.field_names.index(self.pw_field)
         if not self.input_fields[pos].cget("show"):
             self.input_fields[pos].config(show="*")
         else:
             self.input_fields[pos].config(show="")
-            
+
     def _conn_options(self):
         """Show the additional text boxes"""
-        
+
         self.l_driver.grid(row=4, column=1, sticky="w")
         self.l_keyval.grid(row=4, column=2, sticky="w")
         self.e_driver.grid(row=5, column=1, sticky="w")
@@ -1020,12 +1083,12 @@ class DB_connection():
 
     def _get_about(self):
         """Show info"""
-        
-        tkMessageBox.showinfo("About", "Screening Managemant Software\n\n" +
+
+        tkMessageBox.showinfo("About", "Screening Management Software\n\n" +
             "Andreas Helfenstein\n" +
             "University of Helsinki\n\n" +
             "andreas.helfenstein@helsinki.fi")
-            
+
     def _protect(self, param_list, blank_text=""):
         """Remove passwords from list"""
 
@@ -1035,27 +1098,27 @@ class DB_connection():
 
     def _load_rc(self, rc):
         """Paste recent connection value into fields"""
-        
+
         for i in range(0, len(self.input_fields)):
             self.input_fields[i].delete(0, tk.END)
             self.input_fields[i].insert(0, rc[i])
             self.input_fields[3].focus_set()
-            
+
     def _show_help(self):
         """Show the documentation"""
-        
+
         def we_are_frozen():
             # All of the modules are built-in to the interpreter, e.g., by py2exe
             return hasattr(sys, "frozen")
-        
+
         def module_path():
             encoding = sys.getfilesystemencoding()
             if we_are_frozen():
                 return os.path.dirname(unicode(sys.executable, encoding))
             return os.path.dirname(unicode(__file__, encoding))
-            
+
         filename = module_path() + os.sep + "doc.pdf"
-        
+
         if sys.platform.startswith('darwin'):
             os.system("open " + filename)
         elif sys.platform.startswith('linux'):
@@ -1072,7 +1135,7 @@ class DB_connection():
         for field in self.input_fields:
             conn_params.append(field.get())
         try:
-            self.connection = DbConnection(*conn_params)        
+            self.connection = DbConnection(*conn_params)
             self.conn = self.connection.connect()
         except DbError, e: #wrong pw, user, server
             tkMessageBox.showerror("Connection problem",
@@ -1087,12 +1150,12 @@ class DB_connection():
             self.rec_conn = self.rec_conn[-5:]
         pickle.dump(self.rec_conn, open( "connections.p", "wb" ))
         self.newWindow = tk.Toplevel(self.parent)
-        self.app = MainMenu(self.newWindow, self.connection)    
+        self.app = MainMenu(self.newWindow, self.connection)
 
     def quit(self):
         self.conn = True
         self.parent.destroy()
-        
+
 
 class MainMenu():
 
@@ -1103,8 +1166,8 @@ class MainMenu():
         self.conn = conn
         self.filter_elements=[]
         self.var_collection={}
-        
-            
+
+
         filter_fields = (
             ("Choose criteria", None),
             ("Compound name", "Cpd.name"),
@@ -1120,7 +1183,7 @@ class MainMenu():
             ("Routine", "Rtn.alias"),
             ("Author", "Rtn.author"))
         self.filter_fields = collections.OrderedDict(filter_fields)
-            
+
         self.comp = ("==", "!=", "<=", ">=", "IN", "NOT IN", "LIKE")
         conn.metadata.reflect(conn.engine)
 
@@ -1134,7 +1197,7 @@ class MainMenu():
         nb.add(self.m_frame, text="Manage")
         nb.add(self.l_frame, text="Add")
         #nb.add(self.o_frame, text="Options")
-        
+
         q_descript = ("Choose the filter criteria for your search and the " +
             "output mode.\nClick 'Preview' to see and modify your query.")
         m_descript = ("Manage the database tables or load compounds or users \n" +
@@ -1143,7 +1206,7 @@ class MainMenu():
         l_descript = ("Add new results to your database. If you choose " +
             "'Custom',\nyou can select the import script manually.")
 
-        nb.pack()        
+        nb.pack()
 
         self.c1 = tk.IntVar()
         self.c2 = tk.IntVar()
@@ -1152,7 +1215,7 @@ class MainMenu():
         self.v = v = tk.StringVar()
         self.d = d = tk.StringVar()
         self.u = u = tk.IntVar()
-        
+
         tk.Label(self.q_frame, text="Get data",
             font=("Helvetica", 16),
             pady=3,
@@ -1170,17 +1233,17 @@ class MainMenu():
             width = 12).grid(row=5, column=4, sticky="we")
         tk.Checkbutton(self.q_frame, variable=self.c1, text="Show graphs",
             ).grid(row=2, column=0)
-        cb = tk.Checkbutton(self.q_frame, variable=self.c2, 
+        cb = tk.Checkbutton(self.q_frame, variable=self.c2,
             text="Show table")
         cb.grid(row=2, column=1)
         cb.select()
-        tk.Checkbutton(self.q_frame, variable=self.c3, 
+        tk.Checkbutton(self.q_frame, variable=self.c3,
             text="Save graphs").grid(row=2, column=2)
-        tk.Checkbutton(self.q_frame, variable=self.c4, 
+        tk.Checkbutton(self.q_frame, variable=self.c4,
             text="Save table").grid(row=2, column=3)
-        
+
         self.obj_collection={}
-        
+
         self._new_line(0, 2)
 
         # self.m_frame: Modification frame
@@ -1239,22 +1302,22 @@ class MainMenu():
             routine_names = [["","No routines yet"],]
         self.routine_dict = {
             rtn[1]: rtn for rtn in routine_names}
-            
-        
+
+
         tk.Label(self.l_frame, text="Add data",
             pady=3,
             font=("Helvetica", 16),
             justify="left").grid(row=0, column=0, columnspan=3, sticky="w")
         tk.Label(self.l_frame, text=l_descript, pady=3,
             justify="left").grid(row=1, column=0, columnspan=3, sticky="w")
-            
+
         selector = tk.OptionMenu(self.l_frame, a, "Custom...", *zip(*routine_names)[1],
-            command=lambda val: self._update_rtn(val))        
+            command=lambda val: self._update_rtn(val))
 
         tk.Label(self.l_frame, text="Routine:",
             justify="left").grid(row=2, column=0, sticky="w")
         selector.grid(row=2, column=1, sticky="we")
-        
+
         tk.Label(self.l_frame, text="From:",
             justify="left").grid(row=3, column=0, sticky="w")
         self.fr = tk.Entry(self.l_frame)
@@ -1296,11 +1359,11 @@ class MainMenu():
         #nb.pack()
 
 
-        
+
     def _options(self):
         """get kwargs"""
         return {}
-        
+
     def _b_load(self):
         target = self.v.get()
         delim = self.d.get()
@@ -1309,9 +1372,9 @@ class MainMenu():
             self.conn.batch_load(target, delim, update=ud)
         except KeyError, e:
             print "The file format is not correct.\n{0}".format(e)
-        
-    def _getln(self, line_number):        
-                
+
+    def _getln(self, line_number):
+
         def on_click():
             val = self.var_collection[line_number][0].get()
             if not val == "Choose criteria":
@@ -1321,7 +1384,7 @@ class MainMenu():
                 self.obj_collection[line_number].configure(values=unique_values)
 
         return lambda x: on_click()
-        
+
     def _new_line(self, val, line_number):
         ax = [tk.StringVar(), tk.StringVar(), tk.StringVar(), tk.StringVar()]
         self.var_collection[line_number] = ax
@@ -1347,10 +1410,10 @@ class MainMenu():
             for obj in l:
                 obj.destroy()
         self.obj_collection={}
-        self.var_collection={}        
+        self.var_collection={}
         self._new_line(0, 2)
-        
-        
+
+
     def _update_rtn(self, val):
         if val != "Custom...":
             self.current_rtn = self.routine_dict[val][0]
@@ -1358,7 +1421,7 @@ class MainMenu():
         else:
             self.current_rtn = None
             self.user_dir = None
-            
+
         #set description field
 
     def _load(self):
@@ -1377,25 +1440,25 @@ class MainMenu():
             self.user_dir,
             preview = preview,
             **kw):
-            
+
             tkMessageBox.showinfo("Import finished",
                     "Results loaded")
 
     def _show_help(self):
         """Show the documentation"""
-        
+
         def we_are_frozen():
             # All of the modules are built-in to the interpreter, e.g., by py2exe
             return hasattr(sys, "frozen")
-        
+
         def module_path():
             encoding = sys.getfilesystemencoding()
             if we_are_frozen():
                 return os.path.dirname(unicode(sys.executable, encoding))
             return os.path.dirname(unicode(__file__, encoding))
-            
+
         filename = module_path() + os.sep + "doc.pdf"
-        
+
         if sys.platform.startswith('darwin'):
             os.system("open " + filename)
         elif sys.platform.startswith('linux'):
@@ -1405,16 +1468,16 @@ class MainMenu():
             os.startfile(filename)
 
     def _get_results(self, query_line=None, *args, **kwargs):
-        
+
         text = ""
         if not query_line:
             query_line = self._build_query(**kwargs)
-        try:      
+        try:
             results, user_dir = self.conn.load_results(query_line)
         except DbError, e:
             tkMessageBox.showerror("Database error", e)
             return
-        
+
         if self.c1.get() or self.c3.get():
             pl_val = 1
         else:
@@ -1423,39 +1486,39 @@ class MainMenu():
             li_val = 1
         else:
             li_val = 0
-            
+
         for keys in results:
             summary = self.conn.get_summary(keys, user_dir[keys], results[keys],
                 plot=pl_val, list_=li_val, **kwargs)
-            
+
             if self.c1.get():
                 # Show graphs
                 summary['plot'].show()
-                
+
             if self.c3.get():
                 # save graphs
                 filename = "{0}graphs_{1}_{2}.png".format(user_dir[keys],
                     keys, time.strftime("%d_%m_%Y"))
                 summary['plot'].savefig(filename, bbox_inches='tight')
-                
+
             if li_val:
                 text += summary['list']
                 text += "\n\n\n"
-        
+
         if self.c2.get:
             self.newWindow = tk.Toplevel(self.parent)
             self.app = ListMenu(self.newWindow, text)
-            
+
         if self.c4.get:
             filename = "{0}summary_{1}.png".format(user_dir[keys], keys,
                 time.strftime("%d_%m_%Y"))
             f = open(filename, "w")
             f.write(text.encode('utf-8'))
             f.close()
-        
+
     def _build_query(self, **kwargs):
         """Assemlbe the query string to be passed to the engine"""
-        
+
         filter_str =[]
         comp_list = (self.var_collection[keys][3].get() for keys in self.var_collection)
         ors = [i for i, j in enumerate(comp_list) if j == "OR"]
@@ -1492,13 +1555,13 @@ class MainMenu():
                    self.filter_fields[self.var_collection[i+2][0].get()],
                    self.var_collection[i+2][1].get(),
                    self.var_collection[i+2][2].get())
-                
+
             filter_str.append("{0}{1}{2}".format(
                     lead, center, tail))
 
         return ", ".join(filter_str)
-        
-            
+
+
     def _get_preview(self, kwargs):
         query_line = self._build_query(**kwargs)
         new_query = tkSimpleDialog.askstring("Modify query",
@@ -1507,7 +1570,7 @@ class MainMenu():
         print new_query
         if new_query:
             self._get_results(query_line=new_query)
-        
+
 
 
 
@@ -1537,7 +1600,7 @@ class RtnMenu():
         """The Main GUI"""
 
         global line_no
-        
+
         self.parent = parent
         self.conn = conn
         self.elem_collection = {}
@@ -1546,8 +1609,8 @@ class RtnMenu():
             self.conn.session.query(Rtn.alias)\
             .distinct()]
         f = tk.Frame(self.parent, pady=5, padx=5)
-        
-        
+
+
         self.form = collections.OrderedDict((
             ("alias", [
                 "Short name*:",
@@ -1594,10 +1657,10 @@ class RtnMenu():
             "Unicode()"
             ]
         self.line_no = 1
-        
+
         f.pack()
         self.f = f
-        
+
         tk.Label(f, text="New routine",
                 font=("Helvetica", 14),
                 pady=3,
@@ -1613,7 +1676,7 @@ class RtnMenu():
                 self.form[keys][2][i].grid(row=self.line_no,
                         column=1+i, sticky="we")
             self.line_no += 1
-        
+
 
         def new_line():
 
@@ -1643,8 +1706,8 @@ class RtnMenu():
 
 
     def ok(self, mode):
-        
-       
+
+
         data_fields = {
             self.elem_collection[keys][0].get(): eval(self.elem_collection[keys][1].get())
             for keys in self.elem_collection}
@@ -1655,51 +1718,51 @@ class RtnMenu():
 
         if mode == "save":
             try:
-                self.conn.new_entry(Rtn, values)                
+                self.conn.new_entry(Rtn, values)
             except sa.exc.InvalidRequestError, e:
                 print ("Could not add the routine: \n\n{0}".format(e))
             except sa.exc.IntegrityError:
                 tkMessageBox.showerror("Integrity Error", "A routine " +
                     "with that short name already exists.\n" +
                     "Please choose a different name.")
-                self.form['alias'][2][0].focus_set()                
+                self.form['alias'][2][0].focus_set()
         elif mode == "update":
             try:
                 self.conn.update(self.conn.metadata.tables['routines'],
                     "alias",
                     self.form["alias"][2][0].get(),
                     values)
-                    
+
                 db = values["alias"]
                 db_fields = self.conn.metadata.tables[db].columns
                 for keys in values["data_fields"]:
                     col = Column(keys, values["data_fields"][keys])
                     col.create(self.conn.metadata.tables[db])
-                                    
+
             except sa.InvalidRequestError, e:
                 print ("Could not update the routine: \n\n{0}".format(e))
-            
+
 
 
     def _browse_sop(self):
         path = tkfd.askopenfilename(title="Select the SOP")
         self.form["sop"][2][0].delete(0, tk.END)
         self.form["sop"][2][0].insert(0, path)
-        
+
     def _open_sop(self):
-        
+
         def we_are_frozen():
             # All of the modules are built-in to the interpreter, e.g., by py2exe
             return hasattr(sys, "frozen")
-        
+
         def module_path():
             encoding = sys.getfilesystemencoding()
             if we_are_frozen():
                 return os.path.dirname(unicode(sys.executable, encoding))
             return os.path.dirname(unicode(__file__, encoding))
-            
+
         filename = self.form["sop"][2][0].get()
-        
+
         if sys.platform.startswith('darwin'):
             os.system("open " + filename)
         elif sys.platform.startswith('linux'):
@@ -1708,35 +1771,35 @@ class RtnMenu():
         elif sys.platform.startswith('win32'):
             os.startfile(filename)
 
-        
-        
-        
+
+
+
     def _update_fields(self):
-        
+
         self.conn.metadata.reflect(self.conn.engine)
         name = self.form['alias'][2][0].get()
         col_names = [eval("Rtn.{0}".format(keys)) for keys in self.form]
         col_names.append(Rtn.data_fields)
-        
+
         val = self.conn.session.query(*col_names).filter(Rtn.alias == name).first()
         col = self.form.keys()
         col.append("data_fields")
-        
+
         dic = dict((key, value) for (key, value) in zip(col, val))
         for keys in self.form:
             if keys != "description":
                 self.form[keys][2][0].delete(0, tk.END)
-                if dic[keys]:                
+                if dic[keys]:
                     self.form[keys][2][0].insert(0, dic[keys])
             else:
                 self.form[keys][2][0].delete("0.0", tk.END)
-                if dic[keys]:                
+                if dic[keys]:
                     self.form[keys][2][0].insert("0.0", dic[keys])
 
         for keys in self.elem_collection:
             for elem in self.elem_collection[keys]:
                 elem.destroy()
-        self.elem_collection = {}                       
+        self.elem_collection = {}
         line_no = len(self.form)+1
         for keys in dic["data_fields"]:
             elems = [
@@ -1813,7 +1876,7 @@ class UsrMenu():
 
         global line_no
         line_no = 1
-        
+
         tk.Label(f, text="New user",
                 font=("Helvetica", 14),
                 pady=3,
@@ -1839,22 +1902,22 @@ class UsrMenu():
         path = tkfd.askdirectory()
         self.form["working_directory"][2][0].delete(0, tk.END)
         self.form["working_directory"][2][0].insert(0, path)
-        
+
     def _update_fields(self):
-        
+
         self.conn.metadata.reflect(self.conn.engine)
         name = self.form['usr_name'][2][0].get()
         col_names = [eval("Usr.{0}".format(keys)) for keys in self.form]
-        
+
         val = self.conn.session.query(*col_names).filter(Usr.usr_name == name).first()
         col = self.form.keys()
-        
+
         dic = dict((key, value) for (key, value) in zip(col, val))
         for keys in self.form:
             self.form[keys][2][0].delete(0, tk.END)
-            if dic[keys]:                
+            if dic[keys]:
                 self.form[keys][2][0].insert(0, dic[keys])
-            
+
     def _get_val(self, obj):
         try:
             value = obj.get()
@@ -1868,23 +1931,23 @@ class UsrMenu():
             keys: self._get_val(self.form[keys][2][0]) for keys in self.form}
         if mode == "save":
             try:
-                self.conn.new_entry(Usr, values)                
+                self.conn.new_entry(Usr, values)
             except sa.exc.InvalidRequestError, e:
                 print ("Could not add the user: \n\n{0}".format(e))
             except sa.exc.IntegrityError:
                 tkMessageBox.showerror("Integrity Error", "A user " +
                     "with that user name already exists.\n" +
                     "Please choose a different name.")
-                self.form['usr_name'][2][0].focus_set()                
+                self.form['usr_name'][2][0].focus_set()
         elif mode == "update":
             try:
                 self.conn.update(self.conn.metadata.tables['users'],
                     "usr_name",
                     self.form["usr_name"][2][0].get(),
-                    values)                
+                    values)
             except sa.exc.InvalidRequestError, e:
                 print ("Could not update the user: \n\n{0}".format(e))
-            
+
 
     def quit(self):
         self.parent.destroy()
@@ -1935,12 +1998,10 @@ class CpdMenu():
 
         global line_no
         line_no = 1
-        
         tk.Label(f, text="New compound",
                 font=("Helvetica", 14),
                 pady=3,
                 justify = "left").grid(row=0, column=0, columnspan=2, sticky="w")
-
         for keys in self.form:
             tk.Label(f, text=self.form[keys][0]).grid(row=line_no, column=0,
                 sticky="nw")
@@ -1949,8 +2010,6 @@ class CpdMenu():
             line_no += 1
         self.elem_collection = {}
 
-
-        
         tk.Button(f, text="Load", command=lambda: self._update_fields(),
             width=12).grid(column=3, row=1, sticky="we")
         tk.Button(f, text="Update", command=lambda: self.ok("update"),
@@ -1959,29 +2018,25 @@ class CpdMenu():
             width=12).grid(column=3, row=3, sticky="we")
         tk.Button(f, text="Close", command=lambda: self.quit(),
             width=12).grid(column=3, row=4, sticky="we")
-        
+
     def _get_val(self, obj):
         try:
             value = obj.get()
         except TypeError:
             value = obj.get(0.0, tk.END)
         return value
-        
+
     def _update_fields(self):
-        
+
         self.conn.metadata.reflect(self.conn.engine)
         name = self.form['name'][2][0].get()
         col_names = [eval("Cpd.{0}".format(keys)) for keys in self.form]
-        
         val = self.conn.session.query(*col_names).filter(Cpd.name == name).first()
-        #col = self.conn.metadata.tables['users'].columns
         col = self.form.keys()
-        
         dic = dict((key, value) for (key, value) in zip(col, val))
-        #print dic
         for keys in self.form:
             self.form[keys][2][0].delete(0, tk.END)
-            if dic[keys]:                
+            if dic[keys]:
                 self.form[keys][2][0].insert(0, dic[keys])
 
     def ok(self, mode):
@@ -1990,20 +2045,20 @@ class CpdMenu():
             keys: self._get_val(self.form[keys][2][0]) for keys in self.form}
         if mode == "save":
             try:
-                self.conn.new_entry(Cpd, values)                
+                self.conn.new_entry(Cpd, values)
             except sa.InvalidRequestError, e:
                 print ("Could not add the compound: \n\n{0}".format(e))
             except sa.IntegrityError:
                 tkMessageBox.showerror("Integrity Error", "A compound " +
                     "with that name already exists.\n" +
                     "Please choose a different name.")
-                self.form['name'][2][0].focus_set()                
+                self.form['name'][2][0].focus_set()
         elif mode == "update":
             try:
                 self.conn.update(self.conn.metadata.tables['compounds'],
                     "name",
                     self.form["name"][2][0].get(),
-                    values)                
+                    values)
             except sa.InvalidRequestError, e:
                 print ("Could not update the compound: \n\n{0}".format(e))
 
@@ -2053,7 +2108,6 @@ class PreviewDialog:
     def __init__(self, parent, df):
 
         top = self.top = tk.Toplevel(parent)
-        
         tk.Label(top, text="This is how your data will be sent to the " +
             "database.\nClick 'Accept' to proceed or 'Discard' to " +
             "cancel").grid(row=1, column=0, columnspan=5)
@@ -2061,9 +2115,6 @@ class PreviewDialog:
         text_area = ScrolledText(top, width=100, height=50, wrap=tk.NONE)
         text_area.insert(tk.INSERT, df)
         text_area.grid(column=0, row=2, columnspan=5)
-
-            
-
         tk.Button(top, text="Accept", command=self.ok).grid(row=3,
             column=0, sticky="we")
         tk.Button(top, text="Discard", command=self.quit).grid(row=3,
@@ -2073,7 +2124,7 @@ class PreviewDialog:
 
         self.result = True
         self.top.destroy()
-        
+
     def quit(self):
 
         self.result = False
@@ -2244,15 +2295,20 @@ def console(*args, **kwargs):
     """ Start rudimentary command line style user interface."""
 
     # To do: input mask for new connection
-    
+
     CmdLine().cmdloop(intro="Command line input. Press '?' for help, 'exit' to quit")
 
 
 def gui(*args, **kwargs):
-    """Start the GUI"""
+    """Start the graphical user interface, which gives access to the
+    main functionality.
+    """
 
     root = tk.Tk()
     root.title('Database connection')
     connection_dlg = DB_connection(root)
     root.wait_window(connection_dlg.parent)
     return True
+
+if __name__ == "__main__":
+    gui()

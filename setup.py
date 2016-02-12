@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='screening_mgmt',
-    version='0.1.1',
+    version='1.0.0',
     author='Andreas Helfenstein',
     author_email='andreas.helfenstein@helsinki.fi',
     packages=['screening_mgmt',],
@@ -10,7 +10,7 @@ setup(
     url='https://github.com/a-hel/screening_mgmt',
     license='LICENSE.txt',
     description='Data handling interface.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     install_requires=[
         "pandas >= 0.13.10",
         "dateutil == 0.1.4",

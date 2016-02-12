@@ -1,3 +1,5 @@
 xlrd
 pandas
 sqlalchemy
+python-coveralls
+coverage
