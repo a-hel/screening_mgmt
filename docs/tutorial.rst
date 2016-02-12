@@ -150,7 +150,7 @@ Once the connection is established, you get access to the following functions:
 
 | **reset**: Deletes (drops) all tables and re-initializes the database.
 
-Warning: This step is irreversible!
+.. Warning:: This step is irreversible!
 
 | **exe <command>**: Execute raw SQL command.
 
