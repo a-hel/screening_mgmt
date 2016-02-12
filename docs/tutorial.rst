@@ -24,7 +24,7 @@ To only create an *sqlite* database in memory, you can do it like this:
 
 >>> sm.DbConnection('sqlite', None, None, None, None)
 
-The :py:class:`DbConnection`stores all the parameters of the connection, but does not automatically connect to the database. You can have several :py:class:`DbConnection`s at the same time if you work with several databases. 
+The :py:class:`DbConnection` stores all the parameters of the connection, but does not automatically connect to the database. You can have several :py:class:`DbConnection`s at the same time if you work with several databases. 
 
 The module uses :py:module:`SQLAlchemy` to communicate with the database. At the moment, it supports the following dialects:
 
@@ -145,12 +145,21 @@ Follow the intructions on the screen in order to set up the connection.
 Once the connection is established, you get access to the following functions:
 
 | **usr <user_name>**: Add a new user to the database
+
 | **init**: Initialize the database and build the underlying structure
+
 | **reset**: Deletes (drops) all tables and re-initializes the database.
+
 Warning: This step is irreversible!
+
 | **exe <command>**: Execute raw SQL command.
+
 | **summary [<table>]**: Shows a list of all tables in the database. If a table name is given, also shows all the columns of that table.
+
 | **enter <routine>**: Load data according to the specified routine.
+
 | **close**: Close the connection.
+
 | **gui**: Start the module in graphical mode
+
 | **exit**: Quits the console
