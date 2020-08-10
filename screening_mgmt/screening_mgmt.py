@@ -10,9 +10,14 @@
 Version: 1.0.0
 Author: Andreas Helfenstein, andreas.helfenstein@helsinki.fi
 Last revised: 08-02-2016
+
+ Translated to python3 by Edward Montague, not tested extensively.
+
+
+
 """
-
-
+# uncomment these imports .
+'''
 import os
 import re
 import sys
@@ -20,20 +25,28 @@ import xlrd
 import pandas
 import time
 import pickle
-import ttk
-import tkMessageBox
-import tkSimpleDialog
+from tkinter import ttk
+'''
+
+# import ttk
+# import tkMessageBox
+from tkinter import messagebox as tkMessageBox
+from tkinter import simpledialog as tkSimpleDialog
+
+# import tkSimpleDialog
 import cmd
 import collections
 import shutil
 import urllib
 
 import sqlalchemy as sa
-import tkFileDialog as tkfd
-import Tkinter as tk
+from tkinter import filedialog as tkfd
+# import tkFileDialog as tkfd
+
+import tkinter as tk
 
 from dateutil import parser
-from ScrolledText import ScrolledText
+from tkinter import scrolledtext as ScrolledText
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper
 from sqlalchemy import (Column, ForeignKey, String, Table, Boolean, Unicode,
@@ -132,8 +145,8 @@ class DbConnection(object):
         if not self.status:
             try:
                 self.connect()
-            except DbError, e:
-                print e
+            except (DbError, e):
+                print (e)
         if self.status:
             for tb in [Usr, Cpd, Rtn, Res]:
                 tb.__table__
@@ -179,15 +192,15 @@ class DbConnection(object):
         try:
             # Set echo to True to see SQL
             self.engine = sa.create_engine(url, echo=False)
-        except sa.exc.ArgumentError, e:
+        except (sa.exc.ArgumentError, e):
             raise DbError("> The URL\n\n{0}\n\n is not valid.\n\n> {1}"
                 .format(url, e))
         try:
             self.conn = self.engine.connect()
-        except sa.exc.DBAPIError, e:  # Wrong password, user or server
+        except (sa.exc.DBAPIError, e):  # Wrong password, user or server
             raise DbError(
                 "> Check password, user name or server.\n\n> {0}".format(e))
-        except sa.exc.ProgrammingError, e:  # Wrong database
+        except (sa.exc.ProgrammingError, e) :  # Wrong database
             raise DbError("> Check database name.\n\n> {0}".format(e))
         self.metadata = sa.MetaData(bind=self.engine)
         Session = sa.orm.sessionmaker(bind=self.engine)
@@ -264,11 +277,10 @@ class DbConnection(object):
                                     values(**dic))
 
                                 self.engine.execute(stmt)
-                                print "Record '{0}' updated."\
-                                    .format(dic[id_field])
+                                print ("Record '{0}' updated." .format(dic[id_field]) )
                             else:
-                                print "Record '{0}' already exists."\
-                                    .format(dic[id_field])
+                                print( "Record '{0}' already exists."\
+                                    .format(dic[id_field]))
             elif ext in ['xls', 'xlsx']:
                 workbook = xlrd.open_workbook(raw_file)
                 worksheet = workbook.sheet_by_index(0)
@@ -293,11 +305,11 @@ class DbConnection(object):
                                 values(**dic))
 
                             self.engine.execute(stmt)
-                            print "Record '{0}' updated."\
-                                .format(dic[id_field])
+                            print( "Record '{0}' updated."\
+                                .format(dic[id_field]))
                         else:
-                            print "Record '{0}' already exists."\
-                                .format(dic[id_field])
+                            print ("Record '{0}' already exists."\
+                                .format(dic[id_field]))
 
             else:
                 tkMessageBox.showerror("Invalid file format",
@@ -397,7 +409,7 @@ class DbConnection(object):
                         self.metadata.tables[meta_values['routine']]\
                             .insert(values=record).execute()
 
-                    except KeyError, e:
+                    except (KeyError, e ):
                         e_str = str(e)
                         e_str = e_str.replace("'", "")
                         e_str = e_str.replace('"', '')
@@ -654,8 +666,8 @@ class Usr(Base):
             usr_path = os.path.expanduser("~/{0}".format(self.usr_name))
             try:
                 os.makedirs(usr_path)
-            except OSError, e:
-                print "Could not create user directory: {0}".format(e)
+            except ( OSError, e) :
+                print ("Could not create user directory: {0}".format(e) )
             self.working_directory = usr_path
 
 
@@ -716,7 +728,7 @@ class Rtn(Base):
             try:
                 os.rename(new_path, new_name)
             except WindowsError:
-                print "File already exists"
+                print ( "File already exists" )
 
 
 
@@ -767,7 +779,7 @@ class Res(Base):
                 conn.session.query(Rtn.rtn_id)
                 .filter(Rtn.alias == meta_data['routine'])
                 .count() == 0):
-            print "Routine does not exist"
+            print ("Routine does not exist" )
             return
         self.routine = (
                 conn.session.query(Rtn.rtn_id)
@@ -786,9 +798,9 @@ class CmdLine(cmd.Cmd):
         except IOError:
             rec_conn = []
         enum_conn = enumerate(rec_conn)
-        print "Chose a connection or type 'n' for a new connection:"
+        print ("Chose a connection or type 'n' for a new connection:" )
         for elem in enum_conn:
-            print "{0}: {1}".format(elem[0], " ".join(elem[1]))
+            print ( "{0}: {1}".format(elem[0], " ".join(elem[1])) )
         choice = raw_input()
         if choice.lower() == "n":
             for elem in ["Protocol: ",
@@ -818,10 +830,10 @@ class CmdLine(cmd.Cmd):
         try:
             self.connection.new_entry(Usr, user)
             print("User {0} added.".format(line))
-        except sa.exc.InvalidRequestError, e:
+        except (sa.exc.InvalidRequestError, e ):
             print ("Could not add the user: \n\n{0}".format(e))
-        except sa.exc.IntegrityError:
-            print "A user with the name '{0}' already exists.".format(line)
+        except( sa.exc.IntegrityError ):
+            print ("A user with the name '{0}' already exists.".format(line) )
 
     def do_init(self, line):
         """Build the database tables."""
@@ -845,9 +857,9 @@ class CmdLine(cmd.Cmd):
             for table in reversed(self.connection.metadata.sorted_tables):
                 try:
                     table.drop()
-                except sa.exc.UnboundExecutionError, e:
-                    print e
-                    print "Could not reset database. Try again"
+                except(sa.exc.UnboundExecutionError, e ):
+                    print (e)
+                    print ( "Could not reset database. Try again" )
             self.connection._initialize()
             print("Database reset.")
 
@@ -855,13 +867,13 @@ class CmdLine(cmd.Cmd):
         """Execute line as SQL statement.
         """
 
-        print "IN: >> {0}".format(line)
+        print ("IN: >> {0}".format(line)  )
         try:
             result = self.connection.conn.execute(line)
-        except sa.exc.ProgrammingError, e:
+        except ( sa.exc.ProgrammingError, e ):
             result = str(e)
 
-        print "OUT: >> {0}".format(result)
+        print ("OUT: >> {0}".format(result) )
 
     def do_summary(self, line):
         """Show a list of the existing tables and the columns
@@ -869,14 +881,14 @@ class CmdLine(cmd.Cmd):
         """
 
         self.connection.metadata.reflect(self.connection.engine)
-        print "\nTables in database:\n"
-        print ", ".join(self.connection.metadata.tables.keys())
+        print ("\nTables in database:\n" )
+        print  (", ".join(self.connection.metadata.tables.keys()) )
         if line:
-            print "\nColumns in Table {0}:\n".format(line)
+            print ("\nColumns in Table {0}:\n".format(line) ) 
             try:
-                print ", ".join(self.connection.metadata.tables[line].columns)
+                print (", ".join(self.connection.metadata.tables[line].columns) )
             except:
-                print "Table '{0}' not found.".format(line)
+                print ("Table '{0}' not found.".format(line) )
 
     def do_load(self, line):
         """Load the first ten sets of the routine specified in line"""
@@ -912,8 +924,8 @@ class CmdLine(cmd.Cmd):
         """Executes SQL statement"""
         try:
             self.connection.engine.execute(line)
-        except sa.exc.ProgrammingError, e:
-            print "Synatx error. \n {0}".format(e)
+        except (sa.exc.ProgrammingError, e ):
+            print ("Synatx error. \n {0}".format(e) )
 
     def do_ud(self, line):
         """reloads modules"""
@@ -925,7 +937,7 @@ class CmdLine(cmd.Cmd):
         try:
             self.connection.close()
         except AttributeError:
-            print "No active connection"
+            print ("No active connection" )
 
     def do_gui(self, line):
         """Start the GUI."""
@@ -1136,7 +1148,7 @@ class DB_connection():
         try:
             self.connection = DbConnection(*conn_params)
             self.conn = self.connection.connect()
-        except DbError, e: #wrong pw, user, server
+        except ( DbError, e ): #wrong pw, user, server
             tkMessageBox.showerror("Connection problem",
                 "> Could not connect to the database.\n\n" +
                 "Original message:\n {0}".format(e))
@@ -1369,8 +1381,8 @@ class MainMenu():
         ud = self.u.get()
         try:
             self.conn.batch_load(target, delim, update=ud)
-        except KeyError, e:
-            print "The file format is not correct.\n{0}".format(e)
+        except(KeyError, e) :
+            print ( "The file format is not correct.\n{0}".format(e) )
 
     def _getln(self, line_number):
 
@@ -1473,7 +1485,7 @@ class MainMenu():
             query_line = self._build_query(**kwargs)
         try:
             results, user_dir = self.conn.load_results(query_line)
-        except DbError, e:
+        except ( DbError, e ):
             tkMessageBox.showerror("Database error", e)
             return
 
@@ -1566,7 +1578,7 @@ class MainMenu():
         new_query = tkSimpleDialog.askstring("Modify query",
             "Modify the query.\nUse SQLAlchemy syntax",
             initialvalue=query_line)
-        print new_query
+        print ( new_query )
         if new_query:
             self._get_results(query_line=new_query)
 
@@ -1718,7 +1730,7 @@ class RtnMenu():
         if mode == "save":
             try:
                 self.conn.new_entry(Rtn, values)
-            except sa.exc.InvalidRequestError, e:
+            except (sa.exc.InvalidRequestError, e ):
                 print ("Could not add the routine: \n\n{0}".format(e))
             except sa.exc.IntegrityError:
                 tkMessageBox.showerror("Integrity Error", "A routine " +
@@ -1738,7 +1750,7 @@ class RtnMenu():
                     col = Column(keys, values["data_fields"][keys])
                     col.create(self.conn.metadata.tables[db])
 
-            except sa.InvalidRequestError, e:
+            except(sa.InvalidRequestError, e ):
                 print ("Could not update the routine: \n\n{0}".format(e))
 
 
@@ -1931,9 +1943,9 @@ class UsrMenu():
         if mode == "save":
             try:
                 self.conn.new_entry(Usr, values)
-            except sa.exc.InvalidRequestError, e:
+            except (sa.exc.InvalidRequestError, e ):
                 print ("Could not add the user: \n\n{0}".format(e))
-            except sa.exc.IntegrityError:
+            except (sa.exc.IntegrityError):
                 tkMessageBox.showerror("Integrity Error", "A user " +
                     "with that user name already exists.\n" +
                     "Please choose a different name.")
@@ -1944,7 +1956,7 @@ class UsrMenu():
                     "usr_name",
                     self.form["usr_name"][2][0].get(),
                     values)
-            except sa.exc.InvalidRequestError, e:
+            except ( sa.exc.InvalidRequestError, e ):
                 print ("Could not update the user: \n\n{0}".format(e))
 
 
@@ -2045,7 +2057,7 @@ class CpdMenu():
         if mode == "save":
             try:
                 self.conn.new_entry(Cpd, values)
-            except sa.InvalidRequestError, e:
+            except ( sa.InvalidRequestError, e ) :
                 print ("Could not add the compound: \n\n{0}".format(e))
             except sa.IntegrityError:
                 tkMessageBox.showerror("Integrity Error", "A compound " +
@@ -2058,7 +2070,7 @@ class CpdMenu():
                     "name",
                     self.form["name"][2][0].get(),
                     values)
-            except sa.InvalidRequestError, e:
+            except(sa.InvalidRequestError, e ):
                 print ("Could not update the compound: \n\n{0}".format(e))
 
 
